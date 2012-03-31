@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 public class AlgData  extends JavaScriptObject 
 {
-	public AlgData(){}
+	protected AlgData(){}
 	
 	// JSNI methods to get stock data.
 	public final native String getName() /*-{ return this.m_name; }-*/; 
