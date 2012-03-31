@@ -90,7 +90,7 @@ public class TestbedUI implements EntryPoint {
 		RootPanel.get().add(hpanel);
 		
 		tabP.addSelectionHandler(addB);
-		
+		populateAlgs();
 		
 		addB.addClickHandler(new ClickHandler()
 		{
