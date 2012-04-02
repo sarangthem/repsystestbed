@@ -140,7 +140,6 @@ public final class AlgAddPPanel extends FormPanel
 			{
 				final String algName = nameTB.getText().trim();
 				addAlg(algName);
-				nameTB.setText("");
 			}
 		});
 		
@@ -228,6 +227,7 @@ public final class AlgAddPPanel extends FormPanel
 								{
 									String t = response.getText();
 									removeIndex = Integer.parseInt(t);
+									//TODO - remove index returned follows First In Last Out (Last added alg has index 0)
 								}
 								catch(Exception e)
 								{
