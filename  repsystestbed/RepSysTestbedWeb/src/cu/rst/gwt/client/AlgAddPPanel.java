@@ -138,7 +138,7 @@ public final class AlgAddPPanel extends FormPanel
 			@Override
 			public void onSubmit(SubmitEvent event) 
 			{
-				final String algName = nameTB.getText().toUpperCase().trim();
+				final String algName = nameTB.getText().trim();
 				addAlg(algName);
 				nameTB.setText("");
 			}
