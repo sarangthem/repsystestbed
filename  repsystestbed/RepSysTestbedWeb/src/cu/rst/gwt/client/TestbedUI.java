@@ -40,7 +40,7 @@ public class TestbedUI implements EntryPoint {
 	final FlexTable flexTAlg = new FlexTable();
 	final FlexTable flexTGraph = new FlexTable();
 	final FlexTable flexTWF = new FlexTable();
-	private static final String JSON_URL = GWT.getModuleBaseURL() + "rstservice?q=";
+	public static final String JSON_URL = GWT.getModuleBaseURL() + "rstservice?";
 	Label errMsg = new Label("Error:");
 	final VerticalPanel vertP = new VerticalPanel();
 	final ParthyButton addB = new ParthyButton("Add");
@@ -88,6 +88,8 @@ public class TestbedUI implements EntryPoint {
 		
 		
 		RootPanel.get().add(hpanel);
+		RootPanel.get().add(addAlgPanel);
+		addAlgPanel.setVisible(false);
 		
 		tabP.addSelectionHandler(addB);
 		populateAlgs();
@@ -99,7 +101,7 @@ public class TestbedUI implements EntryPoint {
 			{
 				if(addB.tabSelected == 0)
 				{
-					addAlgPanel.center();
+					addAlgPanel.setVisible(true);
 				}
 				else if(addB.tabSelected == 1)
 				{
@@ -117,6 +119,7 @@ public class TestbedUI implements EntryPoint {
 	private void populateAlgs()
 	{
 		String url = this.JSON_URL;
+		url = url + "op=get_algs";
 		// Send request to server and catch any errors.
 	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 	    try 
