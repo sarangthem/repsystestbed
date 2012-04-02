@@ -62,7 +62,7 @@ public class RSTServlet extends HttpServlet
 	{
 		String algName = req.getParameter("alg_name");
 		
-		int pos = 0;
+		int pos = -1;
 		int i = 0;
 		for(String n : algs.keySet())
 		{
