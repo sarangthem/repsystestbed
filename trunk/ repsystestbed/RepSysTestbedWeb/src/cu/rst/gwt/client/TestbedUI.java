@@ -89,10 +89,13 @@ public class TestbedUI implements EntryPoint {
 		
 		RootPanel.get().add(hpanel);
 		RootPanel.get().add(addAlgPanel);
+		RootPanel.get().add(addGraphPanel);
 		addAlgPanel.setVisible(false);
+		addGraphPanel.setVisible(false);
 		
 		tabP.addSelectionHandler(addB);
 		populateAlgs();
+		populateGraphs();
 		
 		addB.addClickHandler(new ClickHandler()
 		{
@@ -105,7 +108,7 @@ public class TestbedUI implements EntryPoint {
 				}
 				else if(addB.tabSelected == 1)
 				{
-					addGraphPanel.center();
+					addGraphPanel.setVisible(true);
 				}
 				else if(addB.tabSelected == 2)
 				{
@@ -116,6 +119,46 @@ public class TestbedUI implements EntryPoint {
 		
 	}
 	
+	private void populateGraphs() 
+	{
+		String url = this.JSON_URL;
+		url = url + "op=get_graphs";
+		// Send request to server and catch any errors.
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    try 
+	    {
+	    	Request request = builder.sendRequest(null, new RequestCallback()
+	    	 {
+
+				@Override
+				public void onResponseReceived(Request request, Response response) 
+				{
+					 if (200 == response.getStatusCode()) 
+					 {
+						 updateGraphTable(asArrayOfGraphData(response.getText()));
+					 }
+					 else 
+					 {
+						 displayError("Couldn't retrieve JSON (" + response.getStatusText() + ")");
+				     }
+					
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) 
+				{
+					displayError("Couldn't retrieve JSON");
+					
+				}
+	    		 
+	    	 });
+	    }
+	    catch(RequestException e)
+	    {
+	    	displayError("Couldn't retrieve JSON.");
+	    }
+	}
+
 	private void populateAlgs()
 	{
 		String url = this.JSON_URL;
@@ -132,7 +175,7 @@ public class TestbedUI implements EntryPoint {
 				{
 					 if (200 == response.getStatusCode()) 
 					 {
-						 updateTable(asArrayOfAlgData(response.getText()));
+						 updateAlgTable(asArrayOfAlgData(response.getText()));
 					 }
 					 else 
 					 {
@@ -161,16 +204,29 @@ public class TestbedUI implements EntryPoint {
     	return eval(json);
   	}-*/;
 	
+	private final native JsArray<GraphData> asArrayOfGraphData(String json) 
+	/*-{
+    	return eval(json);
+  	}-*/;
+	
 	private void displayError(String msg)
 	{
 		errMsg.setText(msg);
 	}
 	
-	private void updateTable(JsArray<AlgData> data)
+	private void updateAlgTable(JsArray<AlgData> data)
 	{
 		for(int i = 0; i<data.length(); i++)
 		{
 			addAlgPanel.addAlg(data.get(i).getName());
+		}
+	}
+	
+	private void updateGraphTable(JsArray<GraphData> data)
+	{
+		for(int i = 0; i<data.length(); i++)
+		{
+			addGraphPanel.addGraph(data.get(i).getName());
 		}
 	}
 	

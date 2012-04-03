@@ -198,7 +198,7 @@ public final class AlgAddPPanel extends FormPanel
 	
 	public void addAlg(final String name)
 	{
-		if(!TestbedUI.algTable.contains(name))
+		if(!TestbedUI.algTable.contains(name) && !name.equals(""))
 		{
 			TestbedUI.algTable.add(name);
 			int row = flexT.insertRow(flexT.getRowCount());
@@ -210,7 +210,7 @@ public final class AlgAddPPanel extends FormPanel
 				public void onClick(ClickEvent event) 
 				{
 					int removeIndex = TestbedUI.algTable.indexOf(name);
-					/*
+					
 					String url = TestbedUI.JSON_URL;
 					url = url + "op=rem_alg" + "&alg_name=" + name;
 					// Send request to server and catch any errors.
@@ -225,18 +225,11 @@ public final class AlgAddPPanel extends FormPanel
 							{
 								if(response.getStatusCode() == 200)
 								{
-									int removeIndex = -1;
-									try
-									{
-										String t = response.getText();
-										removeIndex = Integer.parseInt(t);
-										//TODO - remove index returned follows First In Last Out (Last added alg has index 0)
-									}
-									catch(Exception e)
-									{
-										Window.alert(e.toString());
-									}
-									
+									//Window.alert("Algorithm " + name + " removed.");
+								}
+								else
+								{
+									Window.alert("Got error from server: " + response.getStatusCode());
 								}
 								
 							}
@@ -244,7 +237,7 @@ public final class AlgAddPPanel extends FormPanel
 							@Override
 							public void onError(Request request, Throwable exception) 
 							{
-
+								//TODO - do something
 								
 							}
 				    		 
@@ -252,8 +245,8 @@ public final class AlgAddPPanel extends FormPanel
 				    }
 				    catch(RequestException e)
 				    {
-
-				    }*/
+				    	//TODO - do something
+				    }
 				    
 				    if(removeIndex >= 0) flexT.removeRow(removeIndex + 1);
 				    TestbedUI.algTable.remove(name);

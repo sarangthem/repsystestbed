@@ -32,6 +32,7 @@ import com.google.gson.Gson;
 import com.google.gwt.core.client.GWT;
 
 import cu.rst.gwt.client.Algorithm;
+import cu.rst.gwt.client.Graph;
 
 public class RSTServlet extends HttpServlet 
 {
@@ -42,6 +43,8 @@ public class RSTServlet extends HttpServlet
 	Hashtable<String, byte[]> algClasses = new Hashtable<String, byte[]>();
 	Hashtable<String, byte[]> propClasses = new Hashtable<String, byte[]>();
 	
+	Hashtable<String, Graph> graphs = new Hashtable<String, Graph>();
+	Hashtable<String, byte[]> graphFile = new Hashtable<String, byte[]>();
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
@@ -55,9 +58,32 @@ public class RSTServlet extends HttpServlet
 		{
 			processRemoveAlg(req, resp);
 		}
+		else if(op.toLowerCase().trim().equals("get_graphs"))
+		{
+			processGetGraphs(req, resp);
+		}
+		else if(op.toLowerCase().trim().equals("rem_graph"))
+		{
+			processRemoveGraph(req, resp);
+		}
 		
 	}
 	
+	private void processGetGraphs(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+	{
+		PrintWriter out = resp.getWriter();
+		Gson gson = new Gson();
+		out.println('[');
+		for(Graph a : graphs.values())
+		{
+			out.print(gson.toJson(a));
+			out.println(',');
+		}
+		out.println(']');
+		out.flush();
+		
+	}
+
 	private void processRemoveAlg(HttpServletRequest req, HttpServletResponse resp)  throws ServletException, IOException 
 	{
 		String algName = req.getParameter("alg_name");
@@ -83,18 +109,111 @@ public class RSTServlet extends HttpServlet
 		out.flush();
 		
 	}
+	
+	private void processRemoveGraph(HttpServletRequest req, HttpServletResponse resp)  throws ServletException, IOException 
+	{
+		String graphName = req.getParameter("graph_name");
+		
+		int pos = -1;
+		int i = 0;
+		for(String n : graphs.keySet())
+		{
+			if(n.equals(graphName))
+			{
+				pos = i;
+				break;
+			}
+			i++;
+		}
+		
+		graphs.remove(graphName);
+		graphFile.remove(graphName);
+
+		PrintWriter out = resp.getWriter();
+		out.print(graphs.size() - pos);
+		out.flush();
+		
+	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-//		String op = req.getParameter("op");
-//		if(op.toLowerCase().trim().equals("putalgs"))
-//		{
+
+		String op = req.getRequestURI();
+		if(op.indexOf("newalg") > 0)
+		{
 			processPutAlgs(req, resp);
-//		}
+		}
+		else if(op.indexOf("newgraph") > 0)
+		{
+			processPutGraphs(req, resp);
+		}
+
 			
 	}
 	
+	private void processPutGraphs(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	{
+		try 
+		{
+			ServletFileUpload upload = new ServletFileUpload();
+			String graphName = null;
+			byte[] graphBytes = null;
+
+			FileItemIterator iterator = upload.getItemIterator(req);
+			while (iterator.hasNext()) 
+			{
+				FileItemStream item = iterator.next();
+				InputStream stream = item.openStream();
+				//not a file (e.g text field)
+				if (item.isFormField() && item.getFieldName().equals("nameFormElement")) 
+				{  
+					StringWriter writer = new StringWriter();
+					IOUtils.copy(stream, writer);
+					graphName = writer.toString();
+
+				}
+				else 
+				{
+					if(item.getFieldName().equals("graphUploadFormElement"))
+					{
+						ByteArrayOutputStream out = new ByteArrayOutputStream();
+						int len;
+						byte[] buffer = new byte[8192];
+	    	 			while ((len = stream.read(buffer, 0, buffer.length)) != -1)
+	    	 			{
+	    	 				out.write(buffer, 0, len);
+	    	 			}
+	    	 			graphBytes = out.toByteArray();
+					}
+
+				}
+			}
+			
+			if(graphName == null)
+			{
+				throw new Exception("No graph name");
+			}
+			
+			//don't add if its already there.
+			if(!this.graphs.containsKey(graphName))
+			{
+				this.graphs.put(graphName, new Graph(graphName));
+				if(graphBytes != null && graphBytes.length != 0)
+				{
+					this.algClasses.put(graphName, graphBytes);
+				}
+			}
+			
+		      
+		}
+		catch (Exception ex) 
+		{
+			throw new ServletException(ex);
+		}
+		
+	}
+
 	private void processPutAlgs(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		try 
