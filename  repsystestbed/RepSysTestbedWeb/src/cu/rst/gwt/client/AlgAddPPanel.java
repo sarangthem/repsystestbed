@@ -149,7 +149,7 @@ public final class AlgAddPPanel extends FormPanel
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) 
 			{
-				 Window.alert(event.getResults());
+				 //Window.alert(event.getResults());
 				
 			}
 		});
@@ -198,61 +198,69 @@ public final class AlgAddPPanel extends FormPanel
 	
 	public void addAlg(final String name)
 	{
-		int row = flexT.insertRow(flexT.getRowCount());
-		flexT.setText(row, 0, name);
-		Button removeB = new Button("x");
-		flexT.setWidget(row, 1, removeB);
-		removeB.addClickHandler(new ClickHandler()
+		if(!TestbedUI.algTable.contains(name))
 		{
-			public void onClick(ClickEvent event) 
+			TestbedUI.algTable.add(name);
+			int row = flexT.insertRow(flexT.getRowCount());
+			flexT.setText(row, 0, name);
+			Button removeB = new Button("x");
+			flexT.setWidget(row, 1, removeB);
+			removeB.addClickHandler(new ClickHandler()
 			{
-				//int removeIndex = TestbedUI.algTable.indexOf(name);
-				
-				String url = TestbedUI.JSON_URL;
-				url = url + "op=rem_alg" + "&alg_name=" + name;
-				// Send request to server and catch any errors.
-			    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-			    try 
-			    {
-			    	Request request = builder.sendRequest(null, new RequestCallback()
-			    	 {
+				public void onClick(ClickEvent event) 
+				{
+					int removeIndex = TestbedUI.algTable.indexOf(name);
+					/*
+					String url = TestbedUI.JSON_URL;
+					url = url + "op=rem_alg" + "&alg_name=" + name;
+					// Send request to server and catch any errors.
+				    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+				    try 
+				    {
+				    	Request request = builder.sendRequest(null, new RequestCallback()
+				    	 {
 
-						@Override
-						public void onResponseReceived(Request request, Response response) 
-						{
-							if(response.getStatusCode() == 200)
+							@Override
+							public void onResponseReceived(Request request, Response response) 
 							{
-								int removeIndex = -1;
-								try
+								if(response.getStatusCode() == 200)
 								{
-									String t = response.getText();
-									removeIndex = Integer.parseInt(t);
-									//TODO - remove index returned follows First In Last Out (Last added alg has index 0)
+									int removeIndex = -1;
+									try
+									{
+										String t = response.getText();
+										removeIndex = Integer.parseInt(t);
+										//TODO - remove index returned follows First In Last Out (Last added alg has index 0)
+									}
+									catch(Exception e)
+									{
+										Window.alert(e.toString());
+									}
+									
 								}
-								catch(Exception e)
-								{
-									Window.alert(e.toString());
-								}
-								if(removeIndex >= 0) flexT.removeRow(removeIndex + 1);
+								
 							}
-							
-						}
 
-						@Override
-						public void onError(Request request, Throwable exception) 
-						{
+							@Override
+							public void onError(Request request, Throwable exception) 
+							{
 
-							
-						}
-			    		 
-			    	 });
-			    }
-			    catch(RequestException e)
-			    {
+								
+							}
+				    		 
+				    	 });
+				    }
+				    catch(RequestException e)
+				    {
 
-			    }
-			}
-		});
+				    }*/
+				    
+				    if(removeIndex >= 0) flexT.removeRow(removeIndex + 1);
+				    TestbedUI.algTable.remove(name);
+				}
+			});
+		}
+		
 	}
 	
 }

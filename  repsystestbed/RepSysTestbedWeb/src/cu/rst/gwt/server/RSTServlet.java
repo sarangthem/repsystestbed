@@ -79,7 +79,7 @@ public class RSTServlet extends HttpServlet
 		propClasses.remove(algName);
 		
 		PrintWriter out = resp.getWriter();
-		out.print(pos);
+		out.print(algs.size() - pos);
 		out.flush();
 		
 	}
