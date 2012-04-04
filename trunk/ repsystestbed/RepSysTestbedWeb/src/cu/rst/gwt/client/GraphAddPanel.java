@@ -94,8 +94,8 @@ public class GraphAddPanel extends FormPanel
 			@Override
 			public void onSubmit(SubmitEvent event) 
 			{
-				final String algName = nameTB.getText().trim();
-				addGraph(algName);
+				final String graphName = nameTB.getText().trim();
+				addGraph(graphName);
 			}
 		});
 		

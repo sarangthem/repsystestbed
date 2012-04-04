@@ -2,8 +2,15 @@ package cu.rst.gwt.client;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -15,50 +22,55 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 
-public class WorkflowAddPanel extends PopupPanel 
+public class WorkflowAddPanel extends FormPanel 
 {
-	FormPanel form;
 	Label nameL;
 	TextBox nameTB;
 	Label workflowDefnL;
 	TextBox workflowDefnTB;
 	Button okB;
 	FlexTable flexT;
-	//TODO move this to server
 
-	class GraphElement
+	
+	public class WorkflowAddClickHandler implements ClickHandler
 	{
-		String name;
-		String workFlowDefn;
-		
-		public GraphElement(String name, String workFlowDefn)
+		private WorkflowAddPanel panel;
+		public WorkflowAddClickHandler(WorkflowAddPanel panel)
 		{
-			this.name = name;
-			this.workFlowDefn = workFlowDefn;
+			setPanel(panel);
+		}
+		public WorkflowAddPanel getPanel() {
+			return panel;
+		}
+		public void setPanel(WorkflowAddPanel panel) {
+			this.panel = panel;
 		}
 		
 		@Override
-		public boolean equals(Object o)
+		public void onClick(ClickEvent event) 
 		{
-			if(!(o instanceof GraphElement))
-			{
-				return false;
-			}
-			return ((GraphElement)o).name.equals(name);
+			panel.submit();
+			panel.setVisible(false);
+			panel.reset();
 		}
 	}
+	
 	public WorkflowAddPanel(FlexTable flexTable)
 	{
-		super(true);
+		super();
 		this.flexT = flexTable;
-		form = new FormPanel();
-	    form.setAction("/myFormHandler");
+	    super.setAction(GWT.getModuleBaseURL() + "newworkflow");
+	    super.setEncoding(FormPanel.ENCODING_MULTIPART);
+	    super.setMethod(FormPanel.METHOD_POST);
 		nameL = new Label("Workflow name:");
 		nameTB = new TextBox();
+		nameTB.setName("nameFormElement");
 		workflowDefnL = new Label("Workflow definition:");
 		workflowDefnTB = new TextBox();
-		
+		workflowDefnTB.setName("defnFormElement");
 		okB = new Button("OK");
 		
 	
@@ -72,92 +84,150 @@ public class WorkflowAddPanel extends PopupPanel
 		holder.add(okB);
 		add(holder);
 		
-		okB.addClickHandler(new ClickHandler()
+		okB.addClickHandler(new WorkflowAddClickHandler(this));
+		
+		super.addSubmitHandler(new FormPanel.SubmitHandler() 
 		{
-
-			public void onClick(ClickEvent event) 
+			
+			@Override
+			public void onSubmit(SubmitEvent event) 
 			{
-				final String workflowDefnName = nameTB.getText().toUpperCase().trim();
-				if(!contains(workflowDefnName) && !workflowDefnName.equals(""))
-				{
-					TestbedUI.workflowTable.add(new GraphElement(workflowDefnName, workflowDefnTB.getText()));
-					int row = flexT.insertRow(flexT.getRowCount());
-					flexT.setText(row, 0, workflowDefnName);
-					flexT.setText(row, 1, workflowDefnTB.getText());
-					Button removeB = new Button("x");
-					flexT.setWidget(row, 2, removeB);
-					Button runB = new Button(">");
-					flexT.setWidget(row, 3, runB);
-					Button evalB = new Button("O");
-					flexT.setWidget(row, 4, evalB);
-					
-					removeB.addClickHandler((new ClickHandler()
-					{
-						public void onClick(ClickEvent event) 
-						{
-							int removeIndex = indexOf(workflowDefnName);
-							if(removeIndex >= 0)
-							{
-								TestbedUI.workflowTable.remove(removeIndex);
-								flexT.removeRow(removeIndex + 1); //don't remove the table header
-							}
-						}
-						
-					}));
-					
-					runB.addClickHandler(new ClickHandler()
-					{
-
-						public void onClick(ClickEvent event) 
-						{
-							PopupPanel ppanel = new PopupPanel(true);
-							FlowPanel fPanel = new FlowPanel();
-							fPanel.setTitle("Workflow");
-							
-							fPanel.add(new Label("This is where graph transformations will be displayed."));
-							ppanel.add(fPanel);
-							ppanel.center();
-						}
-						
-					});
-					
-					evalB.addClickHandler(new ClickHandler()
-					{
-
-						public void onClick(ClickEvent event) 
-						{
-							PopupPanel ppanel = new PopupPanel(true);
-							Button evalB = new Button("Evaluate");
-							Label algL = new Label("Choose Algorithm:");
-							ListBox lb = new ListBox();
-							for(Object n : TestbedUI.algTable)
-							{
-								lb.addItem((String) n);
-							}
-							VerticalPanel vpanel = new VerticalPanel();
-							vpanel.add(algL);
-							vpanel.add(lb);
-							vpanel.add(evalB);
-							ppanel.add(vpanel);
-							ppanel.center();
-						}
-						
-					});
-
-				}
-				nameTB.setText("");	
-				workflowDefnTB.setText("");
-				hide();			
+				final String workflowName = nameTB.getText().trim();
+				final String workflowDefn = workflowDefnTB.getText().trim();
+				addWorkflow(workflowName, workflowDefn);
 			}
 		});
+		
+		super.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler()
+		{
+			
+			@Override
+			public void onSubmitComplete(SubmitCompleteEvent event) 
+			{
+				 //Window.alert(event.getResults());
+				
+			}
+		});
+		
+		
 	}
 		
 	
+	public void addWorkflow(final String workflowName, final String workflowDefn) 
+	{
+		if(!TestbedUI.workflowTable.contains(new Workflow(workflowName, null)) && !workflowName.equals("")
+				&& !workflowDefn.equals(""))
+		{
+			TestbedUI.workflowTable.add(new Workflow(workflowName, workflowDefn));
+			int row = flexT.insertRow(flexT.getRowCount());
+			flexT.setText(row, 0, workflowName);
+			flexT.setText(row, 1, workflowDefn);
+			Button removeB = new Button("x");
+			flexT.setWidget(row, 2, removeB);
+			Button runB = new Button(">");
+			flexT.setWidget(row, 3, runB);
+			Button evalB = new Button("O");
+			flexT.setWidget(row, 4, evalB);
+			
+			removeB.addClickHandler((new ClickHandler()
+			{
+				public void onClick(ClickEvent event) 
+				{
+					int removeIndex = indexOf(workflowName);
+					String url = TestbedUI.JSON_URL;
+					url = url + "op=rem_workflow" + "&workflow_name=" + workflowName;
+					// Send request to server and catch any errors.
+				    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+				    try 
+				    {
+				    	Request request = builder.sendRequest(null, new RequestCallback()
+				    	 {
+
+							@Override
+							public void onResponseReceived(Request request, Response response) 
+							{
+								if(response.getStatusCode() == 200)
+								{
+									//Window.alert("Graph " + name + " removed.");
+								}
+								else
+								{
+									Window.alert("Got error from server: " + response.getStatusCode());
+								}
+								
+							}
+
+							@Override
+							public void onError(Request request, Throwable exception) 
+							{
+								//TODO - do something
+								
+							}
+				    		 
+				    	 });
+				    }
+				    catch(RequestException e)
+				    {
+				    	//TODO - do something
+				    }
+					
+					if(removeIndex >= 0)
+					{
+						TestbedUI.workflowTable.remove(removeIndex);
+						flexT.removeRow(removeIndex + 1); //don't remove the table header
+					}
+				}
+				
+			}));
+			
+			runB.addClickHandler(new ClickHandler()
+			{
+
+				public void onClick(ClickEvent event) 
+				{
+					PopupPanel ppanel = new PopupPanel(true);
+					FlowPanel fPanel = new FlowPanel();
+					fPanel.setTitle("Workflow");
+					
+					fPanel.add(new Label("This is where graph transformations will be displayed."));
+					ppanel.add(fPanel);
+					ppanel.center();
+				}
+				
+			});
+			
+			evalB.addClickHandler(new ClickHandler()
+			{
+
+				public void onClick(ClickEvent event) 
+				{
+					PopupPanel ppanel = new PopupPanel(true);
+					Button evalB = new Button("Evaluate");
+					Label algL = new Label("Choose Algorithm:");
+					ListBox lb = new ListBox();
+					for(Object n : TestbedUI.algTable)
+					{
+						lb.addItem((String) n);
+					}
+					VerticalPanel vpanel = new VerticalPanel();
+					vpanel.add(algL);
+					vpanel.add(lb);
+					vpanel.add(evalB);
+					ppanel.add(vpanel);
+					ppanel.center();
+				}
+				
+			});
+		}
+		
+	}
+
+
 	public boolean contains(String name)
 	{
 		for(Object ge : TestbedUI.workflowTable)
 		{
-			if(((GraphElement)ge).name.equals(name.toUpperCase().trim()))
+			if(((Workflow)ge).getName().equals(name.toUpperCase().trim()))
 			{
 				return true;
 			}
@@ -167,7 +237,7 @@ public class WorkflowAddPanel extends PopupPanel
 	
 	public int indexOf(String name)
 	{
-		return TestbedUI.workflowTable.indexOf(new GraphElement(name, null));
+		return TestbedUI.workflowTable.indexOf(new Workflow(name, null));
 	}
 	
 	
