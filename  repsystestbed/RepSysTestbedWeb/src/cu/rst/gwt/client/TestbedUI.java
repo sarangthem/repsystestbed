@@ -36,7 +36,7 @@ public class TestbedUI implements EntryPoint {
 	//TODO move this to server
 	public static ArrayList algTable = new ArrayList();
 	public static ArrayList graphTable = new ArrayList();
-	public static	ArrayList<Object> workflowTable = new ArrayList<Object>();
+	public static	ArrayList<Workflow> workflowTable = new ArrayList<Workflow>();
 	final FlexTable flexTAlg = new FlexTable();
 	final FlexTable flexTGraph = new FlexTable();
 	final FlexTable flexTWF = new FlexTable();
@@ -90,12 +90,15 @@ public class TestbedUI implements EntryPoint {
 		RootPanel.get().add(hpanel);
 		RootPanel.get().add(addAlgPanel);
 		RootPanel.get().add(addGraphPanel);
+		RootPanel.get().add(addWorkflowPanel);
 		addAlgPanel.setVisible(false);
 		addGraphPanel.setVisible(false);
+		addWorkflowPanel.setVisible(false);
 		
 		tabP.addSelectionHandler(addB);
 		populateAlgs();
 		populateGraphs();
+		populateWorkflows();
 		
 		addB.addClickHandler(new ClickHandler()
 		{
@@ -105,20 +108,69 @@ public class TestbedUI implements EntryPoint {
 				if(addB.tabSelected == 0)
 				{
 					addAlgPanel.setVisible(true);
+					addGraphPanel.setVisible(false);
+					addWorkflowPanel.setVisible(false);
 				}
 				else if(addB.tabSelected == 1)
 				{
 					addGraphPanel.setVisible(true);
+					addAlgPanel.setVisible(false);
+					addWorkflowPanel.setVisible(false);
 				}
 				else if(addB.tabSelected == 2)
 				{
-					addWorkflowPanel.center();
+					addWorkflowPanel.setVisible(true);
+					addAlgPanel.setVisible(false);
+					addGraphPanel.setVisible(false);
 				}
 			}
 		});
 		
 	}
 	
+	private void populateWorkflows() 
+	{
+		String url = this.JSON_URL;
+		url = url + "op=get_workflows";
+		// Send request to server and catch any errors.
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    try 
+	    {
+	    	Request request = builder.sendRequest(null, new RequestCallback()
+	    	 {
+
+				@Override
+				public void onResponseReceived(Request request, Response response) 
+				{
+					 if (200 == response.getStatusCode()) 
+					 {
+						 updateWorkflowTable(asArrayOfWorkflowData(response.getText()));
+					 }
+					 else 
+					 {
+						 displayError("Couldn't retrieve JSON (" + response.getStatusText() + ")");
+				     }
+					
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) 
+				{
+					displayError("Couldn't retrieve JSON");
+					
+				}
+	    		 
+	    	 });
+	    }
+	    catch(RequestException e)
+	    {
+	    	displayError("Couldn't retrieve JSON.");
+	    }
+		
+	}
+
+
+
 	private void populateGraphs() 
 	{
 		String url = this.JSON_URL;
@@ -209,6 +261,11 @@ public class TestbedUI implements EntryPoint {
     	return eval(json);
   	}-*/;
 	
+	private final native JsArray<WorkflowData> asArrayOfWorkflowData(String json) 
+	/*-{
+    	return eval(json);
+  	}-*/;
+	
 	private void displayError(String msg)
 	{
 		errMsg.setText(msg);
@@ -229,5 +286,12 @@ public class TestbedUI implements EntryPoint {
 			addGraphPanel.addGraph(data.get(i).getName());
 		}
 	}
-	
+	private void updateWorkflowTable(
+			JsArray<WorkflowData> data) {
+		for(int i = 0; i<data.length(); i++)
+		{
+			addWorkflowPanel.addWorkflow(data.get(i).getName(), data.get(i).getDefn());
+		}
+		
+	}
 }
