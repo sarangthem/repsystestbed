@@ -35,8 +35,8 @@ public class FeedbackHistoryGraph extends Graph<Agent, FeedbackHistoryGraphEdge>
 		super(ef);
 		setOriginalGraph(this);
 		observers = new ArrayList<Algorithm>();
-		view = new JGraphXView();
-		view.m_graphModel = (SimpleDirectedGraph) this;
+//		view = new JGraphXView();
+//		view.m_graphModel = (SimpleDirectedGraph) this;
 
 	}
 

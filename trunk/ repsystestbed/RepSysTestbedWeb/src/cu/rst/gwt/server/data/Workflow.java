@@ -348,37 +348,37 @@ public class Workflow
 	
 	public static void main(String[] args) throws Exception
 	{
-		BasicConfigurator.configure();
-		
-		// create the graphs
-		FeedbackHistoryGraph feedbackHistoryGraph = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
-		ReputationGraph repGraph = new ReputationGraph(new ReputationEdgeFactory());
-		TrustGraph trustGraph = new TrustGraph(new TrustEdgeFactory());
-		
-		// populate the feedback history graph by parsing the feedbacks from a arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
-		ArrayList<Feedback> feedbacks = (ArrayList<Feedback>) feedbackGen.generateHardcoded("feedbacks.arff");
-		
-		// add the feedbacks to the feedback history graph
-		feedbackHistoryGraph.addFeedbacks(feedbacks, true);
-		
-		// create the algorithms
-		EigenTrust repAlg = (EigenTrust) ReputationAlgorithm.getInstance("cu.repsystestbed.gwt.server.algorithms.examples.EigenTrust");
-		RankbasedTrustAlg trustAlg = (RankbasedTrustAlg) TrustAlgorithm.getInstance("cu.repsystestbed.gwt.server.algorithms.examples.RankbasedTrustAlg");
-		
-		// create the work flow and add the items
-		Workflow workflow = new Workflow();
-		workflow.addItem(feedbackHistoryGraph);
-		workflow.addItem(repAlg);
-		workflow.addItem(repGraph);
-		workflow.addItem(trustAlg);
-		workflow.addItem(trustGraph);
-		
-		// notify the listener of the feedback history graph but in reality it should be the listeners of the first
-		// graph in the workflow are notified. 
-		workflow.getFeedbackHistoryGraph().notifyObservers(false);
-		
-		System.out.println(workflow);
+//		BasicConfigurator.configure();
+//		
+//		// create the graphs
+//		FeedbackHistoryGraph feedbackHistoryGraph = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
+//		ReputationGraph repGraph = new ReputationGraph(new ReputationEdgeFactory());
+//		TrustGraph trustGraph = new TrustGraph(new TrustEdgeFactory());
+//		
+//		// populate the feedback history graph by parsing the feedbacks from a arff file
+//		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+//		ArrayList<Feedback> feedbacks = (ArrayList<Feedback>) feedbackGen.generateHardcoded("feedbacks.arff");
+//		
+//		// add the feedbacks to the feedback history graph
+//		feedbackHistoryGraph.addFeedbacks(feedbacks, true);
+//		
+//		// create the algorithms
+//		EigenTrust repAlg = (EigenTrust) ReputationAlgorithm.getInstance("cu.repsystestbed.gwt.server.algorithms.examples.EigenTrust");
+//		RankbasedTrustAlg trustAlg = (RankbasedTrustAlg) TrustAlgorithm.getInstance("cu.repsystestbed.gwt.server.algorithms.examples.RankbasedTrustAlg");
+//		
+//		// create the work flow and add the items
+//		Workflow workflow = new Workflow();
+//		workflow.addItem(feedbackHistoryGraph);
+//		workflow.addItem(repAlg);
+//		workflow.addItem(repGraph);
+//		workflow.addItem(trustAlg);
+//		workflow.addItem(trustGraph);
+//		
+//		// notify the listener of the feedback history graph but in reality it should be the listeners of the first
+//		// graph in the workflow are notified. 
+//		workflow.getFeedbackHistoryGraph().notifyObservers(false);
+//		
+//		System.out.println(workflow);
 		
 		
 

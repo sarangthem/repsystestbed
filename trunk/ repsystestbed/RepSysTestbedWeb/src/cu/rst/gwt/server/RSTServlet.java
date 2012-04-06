@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -34,6 +37,11 @@ import com.google.gwt.core.client.GWT;
 import cu.rst.gwt.client.Algorithm;
 import cu.rst.gwt.client.Graph;
 import cu.rst.gwt.client.Workflow;
+import cu.rst.gwt.server.data.Feedback;
+import cu.rst.gwt.server.graphs.FeedbackHistoryEdgeFactory;
+import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
+import cu.rst.gwt.server.util.DefaultArffFeedbackGenerator;
+import cu.rst.gwt.server.util.Util;
 
 public class RSTServlet extends HttpServlet 
 {
@@ -41,12 +49,12 @@ public class RSTServlet extends HttpServlet
 	//Algorithm class is used for sendings json structures but the class and properties bytes are
 	//are never sent back to the client
 	Hashtable<String, Algorithm> algs = new Hashtable<String, Algorithm>();
-	Hashtable<String, byte[]> algClasses = new Hashtable<String, byte[]>();
-	Hashtable<String, byte[]> propClasses = new Hashtable<String, byte[]>();
+	Hashtable<String, cu.rst.gwt.server.alg.Algorithm> algClasses = new Hashtable<String, cu.rst.gwt.server.alg.Algorithm>();
+	Hashtable<String, byte[]> propFile = new Hashtable<String, byte[]>();
 	Hashtable<String, Workflow> workflows = new Hashtable<String, Workflow>();
 	
 	Hashtable<String, Graph> graphs = new Hashtable<String, Graph>();
-	Hashtable<String, byte[]> graphFile = new Hashtable<String, byte[]>();
+	Hashtable<String, cu.rst.gwt.server.graphs.Graph> graphFile = new Hashtable<String, cu.rst.gwt.server.graphs.Graph>();
 	
 	
 	@Override
@@ -138,7 +146,7 @@ public class RSTServlet extends HttpServlet
 		
 		algs.remove(algName);
 		algClasses.remove(algName);
-		propClasses.remove(algName);
+		propFile.remove(algName);
 		
 		PrintWriter out = resp.getWriter();
 		out.print(algs.size() - pos);
@@ -298,7 +306,10 @@ public class RSTServlet extends HttpServlet
 				this.graphs.put(graphName, new Graph(graphName));
 				if(graphBytes != null && graphBytes.length != 0)
 				{
-					this.algClasses.put(graphName, graphBytes);
+					DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
+					FeedbackHistoryGraph fhg = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
+					fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
+					this.graphFile.put(graphName, fhg);
 				}
 			}
 			
@@ -373,10 +384,11 @@ public class RSTServlet extends HttpServlet
 				this.algs.put(algName, new Algorithm(algName));
 				if(classBytes != null && classBytes.length != 0)
 				{
-					this.algClasses.put(algName, classBytes);
+					this.algClasses.put(algName, (cu.rst.gwt.server.alg.Algorithm) Util.newClass(algName, classBytes));
+									
 					if(propBytes != null && propBytes.length != 0)
 					{
-						this.propClasses.put(algName, propBytes);
+						this.propFile.put(algName, propBytes);
 					}
 				}
 			}

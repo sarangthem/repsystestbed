@@ -1,8 +1,11 @@
 package cu.rst.gwt.server.util;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -374,6 +377,62 @@ public class DefaultArffFeedbackGenerator extends FeedbackGenerator
 		} catch (Exception e)
 		{
 			logger.info("Error parsing arff file '" + arffFileName +"'.");
+			logger.info(e.getStackTrace());
+			throw e;
+		}
+		
+		return feedbacks;
+				
+	}
+	
+	
+	public List<Feedback> generateHardcoded(byte[] arff) throws Exception
+	{
+		ArrayList<Feedback> feedbacks = null;
+		
+		/**
+		 * 
+		 * @attribute assessorID string
+		 * @attribute assesseeID string
+		 * @attribute feedbackValue string
+		 */
+		
+		try
+		{
+			Instances instances = new Instances(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(arff))));
+			feedbacks = new ArrayList<Feedback>();
+			logger.debug("Number of instances in arff file is " + instances.numInstances());
+			
+			Enumeration enu = instances.enumerateInstances();
+			//get all the feedback lines
+			
+			while(enu.hasMoreElements())
+			{
+				Instance temp = (Instance)enu.nextElement();
+				logger.info("Parsing " + temp);
+				String[] feedbackInstance = new String[3];
+				//go through each feedback line
+				
+				if(temp.numValues()!=3) throw new Exception("Feedback line does not have 3 elements. This is illegal.");
+				
+				for(int i=0;i<temp.numValues();i++)
+				{
+					//number of values == 3
+					feedbackInstance[i] = temp.stringValue(i);					
+				}
+				Agent assessor = new Agent(new Integer(feedbackInstance[0]));
+				Agent assessee = new Agent(new Integer(feedbackInstance[1]));
+				Double value = new Double(feedbackInstance[2]);
+				
+				Feedback f = new Feedback(assessor, assessee, value);
+				feedbacks.add(f);
+				logger.info("Added " + f );
+				
+			}
+
+		} catch (Exception e)
+		{
+			logger.info("Error parsing arff bytes '");
 			logger.info(e.getStackTrace());
 			throw e;
 		}
