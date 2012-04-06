@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -363,7 +364,7 @@ public class Util
         }
         return null;
     }
-
+    
    
     /**
      * Returns a new instance of the given class
@@ -382,49 +383,102 @@ public class Util
             throw new Exception("This class must have a default constructor to be used.", ex);
         }
     }
+    
+
+    public static Object newClass(String name, byte[] classBytes) throws Exception
+    {
+		if(name == null || classBytes == null)
+		{
+			throw new NullPointerException("Either name or the class bytes is null");
+		}
+		
+		ByteArrayClassLoader bacl = new ByteArrayClassLoader();
+		
+		return classInstance(bacl.loadClass(name, classBytes));
+		
+		
+    }
+    
+    //source: http://www.exampledepot.com/egs/java.io/file2bytearray.html
+    // Returns the contents of the file in a byte array.
+    public static byte[] getBytesFromFile(File file) throws IOException 
+    {
+    	FileInputStream is = new FileInputStream(file);
+
+        // Get the size of the file
+        long length = file.length();
+
+        // You cannot create an array using a long type.
+        // It needs to be an int type.
+        // Before converting to an int type, check
+        // to ensure that file is not larger than Integer.MAX_VALUE.
+        if (length > Integer.MAX_VALUE) {
+            // File is too large
+        }
+
+        // Create the byte array to hold the data
+        byte[] bytes = new byte[(int)length];
+
+        // Read in the bytes
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length
+               && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+            offset += numRead;
+        }
+
+        // Ensure all the bytes have been read in
+        if (offset < bytes.length) {
+            throw new IOException("Could not completely read file "+file.getName());
+        }
+
+        // Close the input stream and return bytes
+        is.close();
+        return bytes;
+    }
 	
 	public static void main(String[] args) throws Exception
 	{
-		ReputationGraph repGraph = new ReputationGraph(new ReputationEdgeFactory());
-		Agent a0 = new Agent();
-		Agent a1 = new Agent();
-		Agent a2 = new Agent();
-		Agent a3 = new Agent();
-		Agent a4 = new Agent();
-		
-		repGraph.addVertex(a0);
-		repGraph.addVertex(a1);
-		repGraph.addVertex(a2);
-		repGraph.addVertex(a3);
-		repGraph.addVertex(a4);
-		
-		repGraph.addEdge(a0, a1, 0);
-		repGraph.addEdge(a1, a2, 0);
-		repGraph.addEdge(a2, a3, 0);
-		repGraph.addEdge(a1, a3, 0);
-		repGraph.addEdge(a0, a4, 0);
-		repGraph.addEdge(a4, a3, 0);
-		repGraph.addEdge(a1, a0, 0);
-		repGraph.addEdge(a1, a4, 0);
-		
-		ArrayList<TestbedEdge> paths = Util.getPaths(repGraph, a0, a3, false);
-		if(paths != null)
-		{
-			System.out.println(paths.size());
-			for(TestbedEdge e : paths)
-			{
-				System.out.println(e);
-			}
-		}
-		System.out.println("-------");
-
-		
-		ArrayList<ArrayList<TestbedEdge>> pathsLinkedList =  getPaths(repGraph, a0, a3);
-		
-		for(ArrayList<TestbedEdge> list : pathsLinkedList)
-		{
-			printPath(list);
-		}
+//		ReputationGraph repGraph = new ReputationGraph(new ReputationEdgeFactory());
+//		Agent a0 = new Agent();
+//		Agent a1 = new Agent();
+//		Agent a2 = new Agent();
+//		Agent a3 = new Agent();
+//		Agent a4 = new Agent();
+//		
+//		repGraph.addVertex(a0);
+//		repGraph.addVertex(a1);
+//		repGraph.addVertex(a2);
+//		repGraph.addVertex(a3);
+//		repGraph.addVertex(a4);
+//		
+//		repGraph.addEdge(a0, a1, 0);
+//		repGraph.addEdge(a1, a2, 0);
+//		repGraph.addEdge(a2, a3, 0);
+//		repGraph.addEdge(a1, a3, 0);
+//		repGraph.addEdge(a0, a4, 0);
+//		repGraph.addEdge(a4, a3, 0);
+//		repGraph.addEdge(a1, a0, 0);
+//		repGraph.addEdge(a1, a4, 0);
+//		
+//		ArrayList<TestbedEdge> paths = Util.getPaths(repGraph, a0, a3, false);
+//		if(paths != null)
+//		{
+//			System.out.println(paths.size());
+//			for(TestbedEdge e : paths)
+//			{
+//				System.out.println(e);
+//			}
+//		}
+//		System.out.println("-------");
+//
+//		
+//		ArrayList<ArrayList<TestbedEdge>> pathsLinkedList =  getPaths(repGraph, a0, a3);
+//		
+//		for(ArrayList<TestbedEdge> list : pathsLinkedList)
+//		{
+//			printPath(list);
+//		}
 		
 
 	}
