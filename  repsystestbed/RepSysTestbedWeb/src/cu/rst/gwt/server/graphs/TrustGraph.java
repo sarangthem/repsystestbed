@@ -11,21 +11,21 @@ import cu.rst.gwt.server.alg.EvaluationAlgorithm;
 import cu.rst.gwt.server.alg.TrustAlgorithm;
 import cu.rst.gwt.server.entities.Agent;
 import cu.rst.gwt.server.util.Util;
-import cu.rst.gwt.server.view.JGraphXView;
+//import cu.rst.gwt.server.view.JGraphXView;
 
 public class TrustGraph extends Graph<Agent, TrustEdge>
 {
 
 	private static final long serialVersionUID = -327490271972222723L;
 	static Logger logger = Logger.getLogger(TrustGraph.class.getName());
-	public JGraphXView view;
+//	public JGraphXView view;
 	private ArrayList<Algorithm> observers;
 
 	public TrustGraph(TrustEdgeFactory trustEdgeFactory)
 	{
 		super(trustEdgeFactory);
-		view = new JGraphXView();
-		view.m_graphModel = this;
+//		view = new JGraphXView();
+//		view.m_graphModel = this;
 		observers = new ArrayList<Algorithm>();
 	}
 	

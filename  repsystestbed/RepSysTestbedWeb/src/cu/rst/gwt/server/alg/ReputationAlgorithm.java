@@ -281,7 +281,7 @@ public abstract class ReputationAlgorithm extends Algorithm
 		//TODO - no changes mentioned.
 		((ReputationGraph) m_graph2Output).notifyObservers(null);
 		//now update the view
-		((ReputationGraph) m_graph2Output).view.update(edgesTobeUpdated);
+//		((ReputationGraph) m_graph2Output).view.update(edgesTobeUpdated);
 		
 	}
 	

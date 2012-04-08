@@ -86,7 +86,7 @@ public class WorkflowParser2
 		for(int i = 0; i < m_parsedStrings.size(); i++)
 		{
 			System.out.println(m_workflow);
-			o = storage.get(m_parsedStrings.get(i).toLowerCase());
+			o = storage.get(m_parsedStrings.get(i));
 			Util.assertNotNull(o);
 			if(o instanceof Algorithm)
 			{

@@ -13,14 +13,14 @@ import cu.rst.gwt.server.alg.ReputationAlgorithm;
 import cu.rst.gwt.server.data.Feedback;
 import cu.rst.gwt.server.entities.Agent;
 import cu.rst.gwt.server.util.Util;
-import cu.rst.gwt.server.view.JGraphXView;
+//import cu.rst.gwt.server.view.JGraphXView;
 
 
 public class FeedbackHistoryGraph extends Graph<Agent, FeedbackHistoryGraphEdge>
 {
 	private FeedbackHistoryGraph originalGraph;
 	static Logger logger = Logger.getLogger(FeedbackHistoryGraph.class.getName());
-	public JGraphXView view;
+//	public JGraphXView view;
 	private ArrayList<Feedback> m_feedbacks; //to support replay
 	
 	/**
@@ -181,7 +181,7 @@ public class FeedbackHistoryGraph extends Graph<Agent, FeedbackHistoryGraphEdge>
 			//update the view
 			ArrayList<TestbedEdge> edgesToBeUpdated = new ArrayList<TestbedEdge>();
 			edgesToBeUpdated.add(edge);
-			this.view.update(edgesToBeUpdated);
+//			this.view.update(edgesToBeUpdated);
 		}
 		//hopefully this method returns the ptr to the edge (and not a copy)
 		FeedbackHistoryGraphEdge edge = (FeedbackHistoryGraphEdge) this.getEdge(feedback.getAssesor(), feedback.getAssesee()); 
