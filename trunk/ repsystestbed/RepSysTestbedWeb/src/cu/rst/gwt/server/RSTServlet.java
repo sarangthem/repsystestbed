@@ -40,6 +40,11 @@ import cu.rst.gwt.client.Workflow;
 import cu.rst.gwt.server.data.Feedback;
 import cu.rst.gwt.server.graphs.FeedbackHistoryEdgeFactory;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
+import cu.rst.gwt.server.graphs.ReputationEdgeFactory;
+import cu.rst.gwt.server.graphs.ReputationGraph;
+import cu.rst.gwt.server.graphs.TrustEdgeFactory;
+import cu.rst.gwt.server.graphs.TrustGraph;
+import cu.rst.gwt.server.parse.WorkflowParser2;
 import cu.rst.gwt.server.util.DefaultArffFeedbackGenerator;
 import cu.rst.gwt.server.util.Util;
 
@@ -55,7 +60,6 @@ public class RSTServlet extends HttpServlet
 	
 	Hashtable<String, Graph> graphs = new Hashtable<String, Graph>();
 	Hashtable<String, cu.rst.gwt.server.graphs.Graph> graphFile = new Hashtable<String, cu.rst.gwt.server.graphs.Graph>();
-	
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
@@ -83,11 +87,48 @@ public class RSTServlet extends HttpServlet
 			{
 				processRemoveWorkflow(req, resp);
 			}
+			else if(op.toLowerCase().trim().equals("run_workflow"))
+			{
+				processRunWorkflow(req, resp);
+			}
 		}
 
 		
 	}
 	
+	private void processRunWorkflow(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	{
+		String workflowName = req.getParameter("workflow_name");
+		String workflowDefn = this.workflows.get(workflowName).getDefn();
+		
+		Hashtable<String, Object> tempBag = new Hashtable<String, Object>();
+		
+		//put the algorithms
+		for(String o : this.algClasses.keySet())
+		{
+			tempBag.put(o, this.algClasses.get(o));
+		}
+		
+		//put the graphs
+		for(String o : this.graphFile.keySet())
+		{
+			tempBag.put(o, this.graphFile.get(o));
+		}
+		
+		try 
+		{
+			WorkflowParser2 parser2 = new WorkflowParser2(workflowDefn, tempBag);
+			parser2.run();
+		
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			throw new ServletException(e);
+		}
+		
+	}
+
 	private void processRemoveWorkflow(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		String workflowName = req.getParameter("workflow_name");
@@ -263,6 +304,7 @@ public class RSTServlet extends HttpServlet
 		{
 			ServletFileUpload upload = new ServletFileUpload();
 			String graphName = null;
+			String graphType = null;
 			byte[] graphBytes = null;
 
 			FileItemIterator iterator = upload.getItemIterator(req);
@@ -271,12 +313,23 @@ public class RSTServlet extends HttpServlet
 				FileItemStream item = iterator.next();
 				InputStream stream = item.openStream();
 				//not a file (e.g text field)
-				if (item.isFormField() && item.getFieldName().equals("nameFormElement")) 
+				if (item.isFormField()) 
 				{  
-					StringWriter writer = new StringWriter();
-					IOUtils.copy(stream, writer);
-					graphName = writer.toString();
-
+					if(item.getFieldName().equals("nameFormElement"))
+					{
+						StringWriter writer = new StringWriter();
+						IOUtils.copy(stream, writer);
+						graphName = writer.toString();	
+					}
+					
+					if(item.getFieldName().equals("graphTypeElement"))
+					{
+						StringWriter writer = new StringWriter();
+						IOUtils.copy(stream, writer);
+						graphType = writer.toString();	
+					}
+					
+					
 				}
 				else 
 				{
@@ -291,25 +344,52 @@ public class RSTServlet extends HttpServlet
 	    	 			}
 	    	 			graphBytes = out.toByteArray();
 					}
+					
 
 				}
 			}
 			
-			if(graphName == null)
+			if(graphName == null || graphType == null)
 			{
-				throw new Exception("No graph name");
+				throw new Exception("No graph name or type.");
 			}
 			
 			//don't add if its already there.
 			if(!this.graphs.containsKey(graphName))
 			{
-				this.graphs.put(graphName, new Graph(graphName));
+				this.graphs.put(graphName, new Graph(graphName, graphType));
 				if(graphBytes != null && graphBytes.length != 0)
 				{
-					DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
-					FeedbackHistoryGraph fhg = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
-					fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
-					this.graphFile.put(graphName, fhg);
+					if(graphType.equals("FHG"))
+					{
+						DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
+						FeedbackHistoryGraph fhg = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
+						fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
+						this.graphFile.put(graphName, fhg);
+					}
+				}
+				else
+				{
+					// no graph data provided
+					if(graphType.equals("FHG"))
+					{
+						FeedbackHistoryGraph fhg = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
+						this.graphFile.put(graphName, fhg);
+					}
+					else if(graphType.equals("RG"))
+					{
+						ReputationGraph rg = new ReputationGraph(new ReputationEdgeFactory());
+						this.graphFile.put(graphName, rg);
+					}
+					else if(graphType.equals("TG"))
+					{
+						TrustGraph tg = new TrustGraph(new TrustEdgeFactory());
+						this.graphFile.put(graphName, tg);
+					}
+					else
+					{
+						throw new Exception("Unknown graph type.");
+					}
 				}
 			}
 			

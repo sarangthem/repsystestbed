@@ -14,7 +14,7 @@ import cu.rst.gwt.server.alg.ReputationAlgorithm;
 import cu.rst.gwt.server.alg.TrustAlgorithm;
 import cu.rst.gwt.server.entities.Agent;
 import cu.rst.gwt.server.util.Util;
-import cu.rst.gwt.server.view.JGraphXView;
+//import cu.rst.gwt.server.view.JGraphXView;
 
 public class ReputationGraph extends Graph<Agent, ReputationEdge>
 {
@@ -25,15 +25,15 @@ public class ReputationGraph extends Graph<Agent, ReputationEdge>
 	
 	private ArrayList observers;
 	private OBSERVER_TYPE observerType;
-	public JGraphXView view;
+//	public JGraphXView view;
 	
 	public ReputationGraph(ReputationEdgeFactory reputationEdgeFactory)
 	{
 		super(reputationEdgeFactory);
 		observers = new ArrayList<Algorithm>();
 		observerType = OBSERVER_TYPE.REPSYSTESTBED_ALGORITHM;
-		view = new JGraphXView();
-		view.m_graphModel = this;
+//		view = new JGraphXView();
+//		view.m_graphModel = this;
 
 	}
 	

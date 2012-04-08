@@ -192,6 +192,45 @@ public class WorkflowAddPanel extends FormPanel
 					fPanel.add(new Label("This is where graph transformations will be displayed."));
 					ppanel.add(fPanel);
 					ppanel.center();
+					
+					int removeIndex = indexOf(workflowName);
+					String url = TestbedUI.JSON_URL;
+					url = url + "op=run_workflow" + "&workflow_name=" + workflowName;
+					// Send request to server and catch any errors.
+				    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+					try 
+				    {
+				    	Request request = builder.sendRequest(null, new RequestCallback()
+				    	 {
+
+							@Override
+							public void onResponseReceived(Request request, Response response) 
+							{
+								if(response.getStatusCode() == 200)
+								{
+									//TODO: Report some status here and display the graphs
+								}
+								else
+								{
+									Window.alert("Got error from server: " + response.getStatusCode());
+								}
+								
+							}
+
+							@Override
+							public void onError(Request request, Throwable exception) 
+							{
+								//TODO - do something
+								
+							}
+				    		 
+				    	 });
+				    }
+				    catch(RequestException e)
+				    {
+				    	//TODO - do something
+				    }
+					
 				}
 				
 			});

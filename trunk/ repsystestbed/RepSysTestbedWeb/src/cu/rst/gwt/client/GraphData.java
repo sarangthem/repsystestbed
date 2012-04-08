@@ -8,4 +8,7 @@ public class GraphData extends JavaScriptObject
 	
 	// JSNI methods to get the name.
 	public final native String getName() /*-{ return this.m_name; }-*/; 
+	
+	// JSNI methods to get the type.
+	public final native String getType() /*-{ return this.m_type; }-*/;
 }

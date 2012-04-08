@@ -75,7 +75,7 @@ public abstract class TrustAlgorithm extends Algorithm
 			
 		}
 		//update the view
-		((TrustGraph)m_graph2Output).view.update(edgesToBeUpdated);
+//		((TrustGraph)m_graph2Output).view.update(edgesToBeUpdated);
 		
 	}
 

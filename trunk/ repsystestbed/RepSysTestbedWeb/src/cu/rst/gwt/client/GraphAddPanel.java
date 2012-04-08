@@ -32,6 +32,7 @@ public class GraphAddPanel extends FormPanel
 	final Button okB;
 	final FlexTable flexT;
 	final FileUpload graphUpload;
+	final ListBox listbox;
 
 	public class GraphAddClickHandler implements ClickHandler
 	{
@@ -71,7 +72,12 @@ public class GraphAddPanel extends FormPanel
 		nameTB = new TextBox();
 		nameTB.setName("nameFormElement");
 		okB = new Button("OK");
-
+		listbox = new ListBox();
+		listbox.setName("graphTypeElement");
+		listbox.addItem("FHG");
+		listbox.addItem("RG");
+		listbox.addItem("TG");
+		listbox.setVisibleItemCount(1);
 		
 		graphUpload = new FileUpload();
 		graphUpload.setName("graphUploadFormElement");
@@ -81,6 +87,7 @@ public class GraphAddPanel extends FormPanel
 		holder.add(nameL);
 		holder.add(nameTB);
 		holder.add(graphUpload);
+		holder.add(listbox);
 
 		holder.add(okB);
 		
