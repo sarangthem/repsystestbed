@@ -125,6 +125,21 @@ public class WorkflowParser2
 		m_workflow.start(false);
 	}
 	
+	public void clearAllObservers() throws Exception
+	{
+		ArrayList<Graph> graphs = m_workflow.getAllGraphs();
+		Util.assertNotNull(graphs);
+		for(Graph g : graphs)
+		{
+			g.removeAllObservers();
+		}
+		
+		for(int i=0; i< m_workflow.sequence.size(); i++)
+		{
+			m_workflow.sequence.remove(i);
+		}
+	}
+	
 	@Override
 	public String toString()
 	{

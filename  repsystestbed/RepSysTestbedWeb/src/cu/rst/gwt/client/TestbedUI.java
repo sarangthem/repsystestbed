@@ -7,11 +7,14 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
@@ -23,7 +26,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class TestbedUI implements EntryPoint {
+public class TestbedUI implements EntryPoint, SelectionHandler<Integer> 
+{
 	/**
 	 * The message displayed to the user when the server cannot be reached or
 	 * returns an error.
@@ -44,6 +48,7 @@ public class TestbedUI implements EntryPoint {
 	Label errMsg = new Label("Error:");
 	final VerticalPanel vertP = new VerticalPanel();
 	final ParthyButton addB = new ParthyButton("Add");
+	public final Button resetB = new Button("Reset");
 	final AlgAddPPanel addAlgPanel = new AlgAddPPanel(flexTAlg);
 	final GraphAddPanel addGraphPanel = new GraphAddPanel(flexTGraph);
 	final WorkflowAddPanel addWorkflowPanel = new WorkflowAddPanel(flexTWF); 
@@ -59,9 +64,7 @@ public class TestbedUI implements EntryPoint {
 		HorizontalPanel hpanel = new HorizontalPanel();
 		
 		TabPanel tabP = new TabPanel();
-
 	
-		
 		flexTAlg.setText(0, 0, "Name");
 		flexTAlg.setText(0, 1, "");
 		
@@ -80,8 +83,11 @@ public class TestbedUI implements EntryPoint {
 		tabP.selectTab(0);
 				
 		vertP.add(tabP);
-		vertP.add(addB);
-		vertP.add(errMsg);
+		HorizontalPanel hPanel2 = new HorizontalPanel();
+		hPanel2.add(addB);
+		hPanel2.add(resetB);
+		vertP.add(hPanel2);
+		resetB.setVisible(false);
 		errMsg.setVisible(false);
 		
 		hpanel.add(vertP);
@@ -96,6 +102,7 @@ public class TestbedUI implements EntryPoint {
 		addWorkflowPanel.setVisible(false);
 		
 		tabP.addSelectionHandler(addB);
+		tabP.addSelectionHandler(this);
 		populateAlgs();
 		populateGraphs();
 		populateWorkflows();
@@ -123,6 +130,50 @@ public class TestbedUI implements EntryPoint {
 					addAlgPanel.setVisible(false);
 					addGraphPanel.setVisible(false);
 				}
+			}
+		});
+		
+		resetB.addClickHandler(new ClickHandler()
+		{
+
+			public void onClick(ClickEvent event) 
+			{
+				String url = TestbedUI.JSON_URL;
+				url = url + "op=reset_workflows";
+				// Send request to server and catch any errors.
+			    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+			    try 
+			    {
+			    	Request request = builder.sendRequest(null, new RequestCallback()
+			    	 {
+
+						@Override
+						public void onResponseReceived(Request request, Response response) 
+						{
+							 if (200 == response.getStatusCode()) 
+							 {
+								 updateAlgTable(asArrayOfAlgData(response.getText()));
+							 }
+							 else 
+							 {
+								 displayError("Couldn't retrieve JSON (" + response.getStatusText() + ")");
+						     }
+							
+						}
+
+						@Override
+						public void onError(Request request, Throwable exception) 
+						{
+							displayError("Couldn't retrieve JSON");
+							
+						}
+			    		 
+			    	 });
+			    }
+			    catch(RequestException e)
+			    {
+			    	displayError("Couldn't retrieve JSON.");
+			    }
 			}
 		});
 		
@@ -293,5 +344,19 @@ public class TestbedUI implements EntryPoint {
 			addWorkflowPanel.addWorkflow(data.get(i).getName(), data.get(i).getDefn());
 		}
 		
+	}
+
+	@Override
+	public void onSelection(SelectionEvent<Integer> event) 
+	{
+		int tabSelected = (Integer) event.getSelectedItem();
+		if(tabSelected == 2)
+		{
+			resetB.setVisible(true);
+		}
+		else
+		{
+			resetB.setVisible(false);
+		}
 	}
 }

@@ -234,6 +234,43 @@ public class Workflow
 	}
 	
 	/**
+	 * Returns all the graphs in the workflow.
+	 * @return
+	 * @throws Exception
+	 */
+	public ArrayList<Graph> getAllGraphs() throws Exception
+	{
+		ArrayList<Graph> graphs = new ArrayList<Graph>();
+		for(Object o : this.sequence)
+		{
+			if(o instanceof Graph)
+			{
+				graphs.add((Graph) o);
+			}
+		}
+		
+		return graphs;
+	}
+	
+	/**
+	 * Returns all the algorithms in the workflow
+	 * @return
+	 * @throws Exception
+	 */
+	public ArrayList<Algorithm> getAllAlgorithms() throws Exception
+	{
+		ArrayList<Algorithm> algs = new ArrayList<Algorithm>();
+		for(Object o : this.sequence)
+		{
+			if(o instanceof Algorithm)
+			{
+				algs.add((Algorithm) o);
+			}
+		}
+		return algs;
+	}
+	
+	/**
 	 * Gets the first instance of a trust graph
 	 * @return
 	 * @throws Exception

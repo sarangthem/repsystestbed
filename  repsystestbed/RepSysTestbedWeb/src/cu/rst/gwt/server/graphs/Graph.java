@@ -4,6 +4,7 @@
 package cu.rst.gwt.server.graphs;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.SimpleDirectedGraph;
@@ -29,4 +30,8 @@ public abstract class Graph<V, E> extends SimpleDirectedGraph
 	public abstract Graph<V, E> clone(boolean addObservers);
 	public abstract Graph<V, E> getTransitiveClosureGraph();
 	public abstract void addObserver(Algorithm alg)  throws Exception;
+	public void removeAllObservers()
+	{
+		observers.clear();
+	}
 }

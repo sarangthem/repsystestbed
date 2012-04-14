@@ -53,13 +53,14 @@ public class RSTServlet extends HttpServlet
 	
 	//Algorithm class is used for sendings json structures but the class and properties bytes are
 	//are never sent back to the client
-	Hashtable<String, Algorithm> algs = new Hashtable<String, Algorithm>();
-	Hashtable<String, cu.rst.gwt.server.alg.Algorithm> algClasses = new Hashtable<String, cu.rst.gwt.server.alg.Algorithm>();
-	Hashtable<String, byte[]> propFile = new Hashtable<String, byte[]>();
-	Hashtable<String, Workflow> workflows = new Hashtable<String, Workflow>();
+	Hashtable<String, Algorithm> algsTable = new Hashtable<String, Algorithm>();
+	Hashtable<String, cu.rst.gwt.server.alg.Algorithm> algClassesTable = new Hashtable<String, cu.rst.gwt.server.alg.Algorithm>();
+	Hashtable<String, byte[]> propFileTable = new Hashtable<String, byte[]>();
+	Hashtable<String, Workflow> workflowsTable = new Hashtable<String, Workflow>();
 	
-	Hashtable<String, Graph> graphs = new Hashtable<String, Graph>();
-	Hashtable<String, cu.rst.gwt.server.graphs.Graph> graphFile = new Hashtable<String, cu.rst.gwt.server.graphs.Graph>();
+	Hashtable<String, Graph> graphsTable = new Hashtable<String, Graph>();
+	Hashtable<String, cu.rst.gwt.server.graphs.Graph> graphFileTable = new Hashtable<String, cu.rst.gwt.server.graphs.Graph>();
+	Hashtable<String, byte[]> graphBytesTable = new Hashtable<String, byte[]>();
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
@@ -91,35 +92,57 @@ public class RSTServlet extends HttpServlet
 			{
 				processRunWorkflow(req, resp);
 			}
+			else if(op.toLowerCase().trim().equals("reset_workflows"))
+			{
+				//See Bug report #6
+				processResetWorkflows(req, resp);
+			}
 		}
 
-		
 	}
 	
+	
+	
+	private void processResetWorkflows(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	{
+		for(String o : this.graphFileTable.keySet())
+		{
+			this.graphFileTable.get(o).removeAllObservers();
+		}
+	}
+
+
+
 	private void processRunWorkflow(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		String workflowName = req.getParameter("workflow_name");
-		String workflowDefn = this.workflows.get(workflowName).getDefn();
-		
-		Hashtable<String, Object> tempBag = new Hashtable<String, Object>();
-		
-		//put the algorithms
-		for(String o : this.algClasses.keySet())
-		{
-			tempBag.put(o, this.algClasses.get(o));
-		}
-		
-		//put the graphs
-		for(String o : this.graphFile.keySet())
-		{
-			tempBag.put(o, this.graphFile.get(o));
-		}
-		
 		try 
 		{
+			String workflowName = req.getParameter("workflow_name");
+			String workflowDefn = this.workflowsTable.get(workflowName).getDefn();
+			
+			Hashtable<String, Object> tempBag = new Hashtable<String, Object>();
+			
+			//put the algorithms
+			for(String o : this.algClassesTable.keySet())
+			{
+				tempBag.put(o, this.algClassesTable.get(o));
+			}
+			
+			//put the graphs
+			for(String o : this.graphFileTable.keySet())
+			{
+				if(this.graphFileTable.get(o) instanceof FeedbackHistoryGraph)
+				{
+					FeedbackHistoryGraph fhg = (FeedbackHistoryGraph) this.graphFileTable.get(o);
+					byte[] graphBytes = this.graphBytesTable.get(o);
+					DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
+					fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
+				}
+			
+				tempBag.put(o, this.graphFileTable.get(o));
+			}
 			WorkflowParser2 parser2 = new WorkflowParser2(workflowDefn, tempBag);
-			parser2.run();
-		
+			parser2.run();	
 		} 
 		catch (Exception e) 
 		{
@@ -135,7 +158,7 @@ public class RSTServlet extends HttpServlet
 		
 		int pos = -1;
 		int i = 0;
-		for(String n : workflows.keySet())
+		for(String n : workflowsTable.keySet())
 		{
 			if(n.equals(workflowName))
 			{
@@ -145,11 +168,11 @@ public class RSTServlet extends HttpServlet
 			i++;
 		}
 		
-		graphs.remove(workflowName);
-		graphFile.remove(workflowName);
+		graphsTable.remove(workflowName);
+		graphFileTable.remove(workflowName);
 
 		PrintWriter out = resp.getWriter();
-		out.print(graphs.size() - pos);
+		out.print(graphsTable.size() - pos);
 		out.flush();
 		
 	}
@@ -159,7 +182,7 @@ public class RSTServlet extends HttpServlet
 		PrintWriter out = resp.getWriter();
 		Gson gson = new Gson();
 		out.println('[');
-		for(Graph a : graphs.values())
+		for(Graph a : graphsTable.values())
 		{
 			out.print(gson.toJson(a));
 			out.println(',');
@@ -175,7 +198,7 @@ public class RSTServlet extends HttpServlet
 		
 		int pos = -1;
 		int i = 0;
-		for(String n : algs.keySet())
+		for(String n : algsTable.keySet())
 		{
 			if(n.equals(algName))
 			{
@@ -185,12 +208,12 @@ public class RSTServlet extends HttpServlet
 			i++;
 		}
 		
-		algs.remove(algName);
-		algClasses.remove(algName);
-		propFile.remove(algName);
+		algsTable.remove(algName);
+		algClassesTable.remove(algName);
+		propFileTable.remove(algName);
 		
 		PrintWriter out = resp.getWriter();
-		out.print(algs.size() - pos);
+		out.print(algsTable.size() - pos);
 		out.flush();
 		
 	}
@@ -201,7 +224,7 @@ public class RSTServlet extends HttpServlet
 		
 		int pos = -1;
 		int i = 0;
-		for(String n : graphs.keySet())
+		for(String n : graphsTable.keySet())
 		{
 			if(n.equals(graphName))
 			{
@@ -211,11 +234,11 @@ public class RSTServlet extends HttpServlet
 			i++;
 		}
 		
-		graphs.remove(graphName);
-		graphFile.remove(graphName);
+		graphsTable.remove(graphName);
+		graphFileTable.remove(graphName);
 
 		PrintWriter out = resp.getWriter();
-		out.print(graphs.size() - pos);
+		out.print(graphsTable.size() - pos);
 		out.flush();
 		
 	}
@@ -275,9 +298,9 @@ public class RSTServlet extends HttpServlet
 			
 			if(workflowName != null && workflowDefn !=null)
 			{
-				if(!this.workflows.containsKey(workflowName))
+				if(!this.workflowsTable.containsKey(workflowName))
 				{
-					this.workflows.put(workflowName, new Workflow(workflowName, workflowDefn));
+					this.workflowsTable.put(workflowName, new Workflow(workflowName, workflowDefn));
 
 				}
 			}
@@ -355,17 +378,18 @@ public class RSTServlet extends HttpServlet
 			}
 			
 			//don't add if its already there.
-			if(!this.graphs.containsKey(graphName))
+			if(!this.graphsTable.containsKey(graphName))
 			{
-				this.graphs.put(graphName, new Graph(graphName, graphType));
+				this.graphsTable.put(graphName, new Graph(graphName, graphType));
+				this.graphBytesTable.put(graphName, graphBytes);
 				if(graphBytes != null && graphBytes.length != 0)
 				{
 					if(graphType.equals("FHG"))
 					{
-						DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
+						//DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
 						FeedbackHistoryGraph fhg = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
-						fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
-						this.graphFile.put(graphName, fhg);
+						//fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
+						this.graphFileTable.put(graphName, fhg);
 					}
 				}
 				else
@@ -374,17 +398,17 @@ public class RSTServlet extends HttpServlet
 					if(graphType.equals("FHG"))
 					{
 						FeedbackHistoryGraph fhg = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
-						this.graphFile.put(graphName, fhg);
+						this.graphFileTable.put(graphName, fhg);
 					}
 					else if(graphType.equals("RG"))
 					{
 						ReputationGraph rg = new ReputationGraph(new ReputationEdgeFactory());
-						this.graphFile.put(graphName, rg);
+						this.graphFileTable.put(graphName, rg);
 					}
 					else if(graphType.equals("TG"))
 					{
 						TrustGraph tg = new TrustGraph(new TrustEdgeFactory());
-						this.graphFile.put(graphName, tg);
+						this.graphFileTable.put(graphName, tg);
 					}
 					else
 					{
@@ -459,16 +483,16 @@ public class RSTServlet extends HttpServlet
 			}
 			
 			//don't add if its already there.
-			if(!this.algs.containsKey(algName))
+			if(!this.algsTable.containsKey(algName))
 			{
-				this.algs.put(algName, new Algorithm(algName));
+				this.algsTable.put(algName, new Algorithm(algName));
 				if(classBytes != null && classBytes.length != 0)
 				{
-					this.algClasses.put(algName, (cu.rst.gwt.server.alg.Algorithm) Util.newClass(algName, classBytes));
+					this.algClassesTable.put(algName, (cu.rst.gwt.server.alg.Algorithm) Util.newClass(algName, classBytes));
 									
 					if(propBytes != null && propBytes.length != 0)
 					{
-						this.propFile.put(algName, propBytes);
+						this.propFileTable.put(algName, propBytes);
 					}
 				}
 			}
@@ -489,7 +513,7 @@ public class RSTServlet extends HttpServlet
 		PrintWriter out = resp.getWriter();
 		Gson gson = new Gson();
 		out.println('[');
-		for(Algorithm a : algs.values())
+		for(Algorithm a : algsTable.values())
 		{
 			out.print(gson.toJson(a));
 			out.println(',');
