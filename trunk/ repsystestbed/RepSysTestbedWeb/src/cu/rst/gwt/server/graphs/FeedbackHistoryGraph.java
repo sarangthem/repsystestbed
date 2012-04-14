@@ -147,17 +147,24 @@ public class FeedbackHistoryGraph extends Graph<Agent, FeedbackHistoryGraphEdge>
 		 * observers.
 		 */
 	
-		if(updateGraph)
+//		if(updateGraph)
+//		{
+//			for(Feedback feedback : feedbacks)
+//			{
+//				addFeedback(feedback);
+//			}
+//		}
+//		else
+//		{
+//			m_feedbacks = feedbacks;
+//		}
+		
+		
+		for(Feedback feedback : feedbacks)
 		{
-			for(Feedback feedback : feedbacks)
-			{
-				addFeedback(feedback);
-			}
+			addFeedback(feedback);
 		}
-		else
-		{
-			m_feedbacks = feedbacks;
-		}
+		m_feedbacks = feedbacks;
 		
 	}
 	
