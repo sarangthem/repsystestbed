@@ -2,6 +2,8 @@ package cu.rst.gwt.client;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -176,6 +178,8 @@ public class TestbedUI implements EntryPoint, SelectionHandler<Integer>
 			    }
 			}
 		});
+		
+		
 		
 	}
 	
