@@ -104,7 +104,17 @@ public class WorkflowAddPanel extends FormPanel
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) 
 			{
-				 //Window.alert(event.getResults());
+				 if(event.getResults() != null && !event.getResults().isEmpty())
+				 {
+					 Window.alert("An error occured while adding this workflow. See server logs.");
+					 final String workflowName = nameTB.getText().trim();
+					 int removeIndex = indexOf(workflowName);
+					 if(removeIndex >= 0)
+					 {
+						 TestbedUI.workflowTable.remove(removeIndex);
+						 flexT.removeRow(removeIndex + 1); //don't remove the table header
+					 }
+				 }
 				
 			}
 		});

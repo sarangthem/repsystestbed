@@ -53,7 +53,6 @@ public class GraphAddPanel extends FormPanel
 		{
 			panel.submit();
 			panel.setVisible(false);
-			panel.reset();
 		}
 	}
 
@@ -112,8 +111,15 @@ public class GraphAddPanel extends FormPanel
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) 
 			{
-				 //Window.alert(event.getResults());
-				
+				 if(event.getResults() != null  && !event.getResults().isEmpty())
+				 {
+					 Window.alert("An error occured while adding this graph. See server logs.");
+					 final String graphName = nameTB.getText().trim();
+					 int removeIndex = TestbedUI.graphTable.indexOf(graphName);
+					 if(removeIndex >= 0) flexT.removeRow(removeIndex + 1);
+					 TestbedUI.graphTable.remove(graphName);
+				 }
+				 reset();
 			}
 		});
 
@@ -162,8 +168,7 @@ public class GraphAddPanel extends FormPanel
 							@Override
 							public void onError(Request request, Throwable exception) 
 							{
-								//TODO - do something
-								
+								Window.alert("An error occured while removing this graph.");
 							}
 				    		 
 				    	 });

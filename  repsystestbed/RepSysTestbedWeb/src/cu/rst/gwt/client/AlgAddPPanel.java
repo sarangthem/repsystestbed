@@ -54,7 +54,6 @@ public final class AlgAddPPanel extends FormPanel
 		{
 			panel.submit();
 			panel.setVisible(false);
-			panel.reset();
 		}
 	}
 	
@@ -149,8 +148,16 @@ public final class AlgAddPPanel extends FormPanel
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) 
 			{
-				 //Window.alert(event.getResults());
-				
+				 if(event.getResults() != null && !event.getResults().isEmpty())
+				 {
+					 Window.alert("An error occured while adding this algorithm. See server logs.");
+					 final String algName = nameTB.getText().trim();
+					 int removeIndex = TestbedUI.algTable.indexOf(algName);
+					 if(removeIndex >= 0) flexT.removeRow(removeIndex + 1);
+					 TestbedUI.algTable.remove(algName);
+				 }
+				 
+				 reset();
 			}
 		});
 
