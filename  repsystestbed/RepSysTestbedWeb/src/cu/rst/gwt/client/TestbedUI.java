@@ -358,5 +358,8 @@ public class TestbedUI implements EntryPoint, SelectionHandler<Integer>
 		{
 			resetB.setVisible(false);
 		}
+		addAlgPanel.setVisible(false);
+		addGraphPanel.setVisible(false);
+		addWorkflowPanel.setVisible(false);
 	}
 }
