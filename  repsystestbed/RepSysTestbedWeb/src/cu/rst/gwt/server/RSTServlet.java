@@ -1,42 +1,30 @@
 package cu.rst.gwt.server;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
-import com.google.gwt.core.client.GWT;
 
 import cu.rst.gwt.client.Algorithm;
 import cu.rst.gwt.client.Graph;
 import cu.rst.gwt.client.Workflow;
+import cu.rst.gwt.server.alg.eg.EigenTrust;
+import cu.rst.gwt.server.alg.eg.PeerTrust;
 import cu.rst.gwt.server.data.Feedback;
 import cu.rst.gwt.server.graphs.FeedbackHistoryEdgeFactory;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
@@ -62,6 +50,59 @@ public class RSTServlet extends HttpServlet
 	Hashtable<String, cu.rst.gwt.server.graphs.Graph> graphFileTable = new Hashtable<String, cu.rst.gwt.server.graphs.Graph>();
 	Hashtable<String, byte[]> graphBytesTable = new Hashtable<String, byte[]>();
 	
+	private byte[] fhgBytes = new byte[]{0x40,0x72,0x65,0x6c,0x61,0x74,0x69,0x6f,0x6e,0x20,0x6d,0x79,0x64,0x61,0x74,0x61,0x73,
+										0x65,0x74,0x0d,0x0a,0x0d,0x0a,0x40,0x61,0x74,0x74,0x72,0x69,0x62,0x75,0x74,0x65,0x20,
+										0x61,0x73,0x73,0x65,0x73,0x73,0x6f,0x72,0x49,0x44,0x20,0x73,0x74,0x72,0x69,0x6e,0x67,
+										0x0d,0x0a,0x40,0x61,0x74,0x74,0x72,0x69,0x62,0x75,0x74,0x65,0x20,0x61,0x73,0x73,0x65,
+										0x73,0x73,0x65,0x65,0x49,0x44,0x20,0x73,0x74,0x72,0x69,0x6e,0x67,0x0d,0x0a,0x40,0x61,
+										0x74,0x74,0x72,0x69,0x62,0x75,0x74,0x65,0x20,0x66,0x65,0x65,0x64,0x62,0x61,0x63,0x6b,
+										0x56,0x61,0x6c,0x75,0x65,0x20,0x73,0x74,0x72,0x69,0x6e,0x67,0x0a,0x0d,0x0a,0x40,0x64,
+										0x61,0x74,0x61,0x0d,0x0a,0x30,0x2c,0x31,0x2c,0x30,0x2e,0x38,0x0d,0x0a,0x0a,0x30,0x2c,
+										0x31,0x2c,0x30,0x2e,0x38,0x0d,0x0a,0x0a,0x30,0x2c,0x31,0x2c,0x30,0x2e,0x32,0x0d,0x0a,
+										0x0a,0x31,0x2c,0x30,0x2c,0x30,0x2e,0x39,0x0d,0x0a,0x0a,0x31,0x2c,0x32,0x2c,0x30,0x2e,
+										0x37,0x0d,0x0a,0x0a,0x31,0x2c,0x32,0x2c,0x30,0x2e,0x39,0x0d,0x0a,0x0a,0x31,0x2c,0x32,
+										0x2c,0x30,0x2e,0x31,0x0d,0x0a,0x32,0x2c,0x33,0x2c,0x30,0x2e,0x37,0x0d,0x0a,0x34,0x2c,
+										0x31,0x2c,0x30,0x2e,0x38,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x34,0x0d,0x0a,0x35,
+										0x2c,0x31,0x2c,0x30,0x2e,0x32,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x31,0x0d,0x0a,
+										0x35,0x2c,0x31,0x2c,0x30,0x2e,0x37,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x38,0x0d,
+										0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x39,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x37,
+										0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x38,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,
+										0x39,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x37,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,
+										0x2e,0x38,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x39,0x0d,0x0a,0x35,0x2c,0x31,0x2c,
+										0x30,0x2e,0x37,0x0d,0x0a,0x35,0x2c,0x31,0x2c,0x30,0x2e,0x38,0x0d,0x0a,0x35,0x2c,0x31,
+										0x2c,0x30,0x2e,0x39,0x00};
+	
+	public RSTServlet()
+	{
+		populateTables();
+	}
+	
+	private void populateTables()
+	{
+		
+		algsTable.put("cu.rst.gwt.server.alg.eg.EigenTrust", new Algorithm("cu.rst.gwt.server.alg.eg.EigenTrust"));
+		algClassesTable.put("cu.rst.gwt.server.alg.eg.EigenTrust", new EigenTrust());		
+		
+		algsTable.put("cu.rst.gwt.server.alg.eg.PeerTrust", new Algorithm("cu.rst.gwt.server.alg.eg.PeerTrust"));
+		algClassesTable.put("cu.rst.gwt.server.alg.eg.PeerTrust", new PeerTrust());
+		
+		graphsTable.put("fhg1", new Graph("fhg1", "FHG"));
+		graphFileTable.put("fhg1", new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory()));
+		graphBytesTable.put("fhg1", fhgBytes);
+		
+		graphsTable.put("rg1", new Graph("rg1", "RG"));
+		graphFileTable.put("rg1", new ReputationGraph(new ReputationEdgeFactory()));
+		
+		graphsTable.put("rg2", new Graph("rg2", "RG"));
+		graphFileTable.put("rg2", new ReputationGraph(new ReputationEdgeFactory()));
+		
+		workflowsTable.put("workflow1", new Workflow("workflow1", "fhg1>cu.rst.gwt.server.alg.eg.EigenTrust>rg1"));
+		workflowsTable.put("workflow2", new Workflow("workflow2", "fhg1>cu.rst.gwt.server.alg.eg.PeerTrust>rg2"));
+		
+	}
+	
+	
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
@@ -84,6 +125,10 @@ public class RSTServlet extends HttpServlet
 			{
 				processRemoveGraph(req, resp);
 			}
+			else if(op.toLowerCase().trim().equals("get_workflows"))
+			{
+				processGetWorkflows(req, resp);
+			}
 			else if(op.toLowerCase().trim().equals("rem_workflow"))
 			{
 				processRemoveWorkflow(req, resp);
@@ -101,7 +146,19 @@ public class RSTServlet extends HttpServlet
 
 	}
 	
-	
+	private void processGetWorkflows(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	{
+		PrintWriter out = resp.getWriter();
+		Gson gson = new Gson();
+		out.println('[');
+		for(Workflow a : workflowsTable.values())
+		{
+			out.print(gson.toJson(a));
+			out.println(',');
+		}
+		out.println(']');
+		out.flush();
+	}
 	
 	private void processResetWorkflows(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
@@ -110,8 +167,6 @@ public class RSTServlet extends HttpServlet
 			this.graphFileTable.get(o).removeAllObservers();
 		}
 	}
-
-
 
 	private void processRunWorkflow(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
@@ -135,8 +190,11 @@ public class RSTServlet extends HttpServlet
 				{
 					FeedbackHistoryGraph fhg = (FeedbackHistoryGraph) this.graphFileTable.get(o);
 					byte[] graphBytes = this.graphBytesTable.get(o);
-					DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
-					fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
+					if(graphBytes != null)
+					{
+						DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
+						fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
+					}
 				}
 			
 				tempBag.put(o, this.graphFileTable.get(o));
