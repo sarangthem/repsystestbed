@@ -7,6 +7,7 @@ import org.apache.log4j.BasicConfigurator;
 
 import cu.rst.gwt.server.alg.eg.DiscretizingAlgorithm;
 import cu.rst.gwt.server.alg.eg.EigenTrust;
+import cu.rst.gwt.server.alg.eg.ManagingTrust;
 import cu.rst.gwt.server.alg.eg.NormalizingAlgorithm;
 import cu.rst.gwt.server.alg.eg.PeerTrust;
 import cu.rst.gwt.server.alg.eg.RankComparisonAlgorithm;
@@ -35,7 +36,8 @@ public class PetriNetTest {
 		
 		//testET();
 		//testPT();
-		testETPT();
+		//testETPT();
+		testMT();
 	}
 	
 	public static void testET() throws Exception
@@ -185,6 +187,46 @@ public class PetriNetTest {
 		
 		workflow.traverse(fhgPlace1);
 		
+	}
+	
+	public static void testMT() throws Exception
+	{
+		PetriNet workflow = new PetriNet(new PetriNetEdgeFactory());
+		
+		//create a feedback history graph
+		FeedbackHistoryGraph fhg1 = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
+		Place fhgPlace1 = new Place(fhg1);
+		
+		DiscretizingAlgorithm da = new DiscretizingAlgorithm();
+		Transition daTransition = new Transition(da);
+		daTransition.setPetriNet(workflow);
+		
+		FeedbackHistoryGraph fhg2 = new FeedbackHistoryGraph(new FeedbackHistoryEdgeFactory());
+		Place fhgPlace2 = new Place(fhg2);
+		
+		ManagingTrust mt = new ManagingTrust();
+		Transition mtTransition = new Transition(mt);
+		mtTransition.setPetriNet(workflow);
+		
+		ReputationGraph rg = new ReputationGraph(new ReputationEdgeFactory());
+		Place rgPlace = new Place(rg);
+		
+		workflow.addEdge(fhgPlace1, daTransition, 1);
+		workflow.addEdge(daTransition, fhgPlace2, 1);
+		workflow.addEdge(fhgPlace2, mtTransition, 1);
+		workflow.addEdge(mtTransition, rgPlace, 1);
+		
+		//parse the feedbacks from the arff file
+		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		ArrayList<Feedback> feedbacks = (ArrayList<Feedback>) feedbackGen.generateHardcoded("feedbacks.arff");
+	
+		Token t = new Token(feedbacks, fhgPlace1);
+		fhgPlace1.putToken(t);
+		
+		workflow.traverse(fhgPlace1);
+		
+		System.out.println(fhg2);
+		System.out.println(rg);
 	}
 
 }

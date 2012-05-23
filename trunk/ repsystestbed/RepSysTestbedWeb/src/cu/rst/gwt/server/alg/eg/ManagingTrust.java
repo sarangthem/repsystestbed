@@ -18,7 +18,9 @@ import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraphEdge;
 import cu.rst.gwt.server.graphs.Graph;
 import cu.rst.gwt.server.graphs.Graph.Type;
+import cu.rst.gwt.server.graphs.ReputationEdge;
 import cu.rst.gwt.server.graphs.ReputationGraph;
+import cu.rst.gwt.server.petrinet.Place;
 import cu.rst.gwt.server.petrinet.Token;
 
 
@@ -30,12 +32,8 @@ import cu.rst.gwt.server.petrinet.Token;
 public class ManagingTrust extends Algorithm
 {
 	
-	public String THRESHOLD2SATISFY = "threshold2Satisfy";
-	public final double DEFAULT_THRESHOLD2SATISFY = 0.7;
-	
 	ManagingTrustCentralStore store;
 	int maxAgents; 
-	double threshold; 
 	int numArbitraryAgentsToPick; 
 	static Logger logger = Logger.getLogger(ManagingTrust.class.getName());
 	boolean printOnConsole = false;
@@ -49,22 +47,6 @@ public class ManagingTrust extends Algorithm
 	@Override
 	public void setConfig(Properties config)
 	{
-		if(config!=null)
-		{
-			super.config = config;
-			try
-			{
-				Double threshold2Satisfy = new Double(config.getProperty(THRESHOLD2SATISFY));
-				if(threshold2Satisfy > Double.MIN_VALUE)
-				{
-					threshold = threshold2Satisfy;
-				}else threshold = DEFAULT_THRESHOLD2SATISFY;
-				
-			}catch(Exception e)
-			{
-				threshold = DEFAULT_THRESHOLD2SATISFY;
-			}
-		}else threshold = DEFAULT_THRESHOLD2SATISFY;
 
 	}
 	
@@ -110,7 +92,7 @@ public class ManagingTrust extends Algorithm
 		for(int i=0;i<numArbitraryAgentsToPick;i++) arbitraryAgents[i]=-1;
 		
 		store.clearData(); //clear everything before starting, just to be safe
-		store.readData(allFeedbacks, threshold, maxAgents);  
+		store.readData(allFeedbacks, maxAgents);  
 		
 		if(printOnConsole) store.printMTCentralStore();
 		
@@ -357,9 +339,28 @@ public class ManagingTrust extends Algorithm
 	}
 
 	@Override
-	public ArrayList update(ArrayList<Token> tokens) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayList update(ArrayList<Token> tokens) throws Exception 
+	{
+		ArrayList<ReputationEdge> changes = new ArrayList<ReputationEdge>();
+		if(tokens!=null && tokens.size()>0)
+		{
+			for(Token t : tokens)
+			{
+				FeedbackHistoryGraph fhg = (FeedbackHistoryGraph) ((Place)t.m_place).getGraph();
+				for(Agent src : (Set<Agent>)fhg.vertexSet())
+				{
+					for(Agent sink : (Set<Agent>)fhg.vertexSet())
+					{
+						if(!src.equals(sink))
+						{
+							double rep = calculateTrustScore(src, sink, fhg);
+							changes.add(new ReputationEdge(src, sink, rep));
+						}
+					}
+				}
+			}
+		}
+		return changes;
 	}
 
 	

@@ -1,6 +1,7 @@
 package cu.rst.gwt.server.petrinet;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -138,7 +139,8 @@ public class Transition implements PetriNetElementIntf
 				{
 					if(e.src instanceof Place)
 					{
-						ArrayList<Token> toks = ((Place)e.src).getTokens();
+						//get only the required amount tokens from the input place.
+						List<Token> toks = ((Place)e.src).getTokens(e.getTokens());
 						if(toks!=null)
 						{
 							for(Token t : toks)
