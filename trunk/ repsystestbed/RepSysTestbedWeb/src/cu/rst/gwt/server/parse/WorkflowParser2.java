@@ -12,7 +12,6 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import cu.rst.gwt.server.alg.Algorithm;
-import cu.rst.gwt.server.alg.ReputationAlgorithm;
 import cu.rst.gwt.server.alg.eg.Appleseed;
 import cu.rst.gwt.server.alg.eg.EigenTrust;
 import cu.rst.gwt.server.alg.eg.RankbasedTrustAlg;

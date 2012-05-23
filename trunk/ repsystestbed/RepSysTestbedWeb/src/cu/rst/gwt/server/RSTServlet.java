@@ -32,7 +32,6 @@ import cu.rst.gwt.server.graphs.ReputationEdgeFactory;
 import cu.rst.gwt.server.graphs.ReputationGraph;
 import cu.rst.gwt.server.graphs.TrustEdgeFactory;
 import cu.rst.gwt.server.graphs.TrustGraph;
-import cu.rst.gwt.server.parse.WorkflowParser2;
 import cu.rst.gwt.server.util.DefaultArffFeedbackGenerator;
 import cu.rst.gwt.server.util.Util;
 
@@ -170,43 +169,7 @@ public class RSTServlet extends HttpServlet
 
 	private void processRunWorkflow(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		try 
-		{
-			String workflowName = req.getParameter("workflow_name");
-			String workflowDefn = this.workflowsTable.get(workflowName).getDefn();
-			
-			Hashtable<String, Object> tempBag = new Hashtable<String, Object>();
-			
-			//put the algorithms
-			for(String o : this.algClassesTable.keySet())
-			{
-				tempBag.put(o, this.algClassesTable.get(o));
-			}
-			
-			//put the graphs
-			for(String o : this.graphFileTable.keySet())
-			{
-				if(this.graphFileTable.get(o) instanceof FeedbackHistoryGraph)
-				{
-					FeedbackHistoryGraph fhg = (FeedbackHistoryGraph) this.graphFileTable.get(o);
-					byte[] graphBytes = this.graphBytesTable.get(o);
-					if(graphBytes != null)
-					{
-						DefaultArffFeedbackGenerator gen = new DefaultArffFeedbackGenerator();
-						fhg.addFeedbacks((ArrayList<Feedback>) gen.generateHardcoded(graphBytes), false);
-					}
-				}
-			
-				tempBag.put(o, this.graphFileTable.get(o));
-			}
-			WorkflowParser2 parser2 = new WorkflowParser2(workflowDefn, tempBag);
-			parser2.run();	
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-			throw new ServletException(e);
-		}
+		//TODO implement this
 		
 	}
 

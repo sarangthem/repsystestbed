@@ -6,22 +6,21 @@ package cu.rst.gwt.server.alg.eg;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Set;
 
-import cu.rst.gwt.server.alg.ReputationAlgorithm;
+import cu.rst.gwt.server.alg.Algorithm;
 import cu.rst.gwt.server.entities.Agent;
 import cu.rst.gwt.server.graphs.Graph;
+import cu.rst.gwt.server.graphs.Graph.Type;
 import cu.rst.gwt.server.graphs.ReputationEdge;
 import cu.rst.gwt.server.graphs.ReputationGraph;
-import cu.rst.gwt.server.graphs.TestbedEdge;
-import cu.rst.gwt.server.graphs.Graph.Type;
+import cu.rst.gwt.server.petrinet.Token;
 
 /**
  * @author partheinstein
  *
  */
-public class Appleseed extends ReputationAlgorithm
+public class Appleseed extends Algorithm
 {
 /*
 	@Override
@@ -114,21 +113,6 @@ public class Appleseed extends ReputationAlgorithm
 	}
 */
 	@Override
-	public void start() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void finish() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
 	public boolean assertVariablePrecondition(double variable) throws Exception
 	{
 		// TODO Auto-generated method stub
@@ -149,10 +133,9 @@ public class Appleseed extends ReputationAlgorithm
 		return true;
 	}
 
-	@Override
-	public double calculateTrustScore(Agent src, Agent sink) throws Exception
+	public double calculateTrustScore(Agent src, Agent sink, ReputationGraph rg) throws Exception
 	{
-		Hashtable t = trusts(src, 2, 0.85, 0.9, m_graph2Listen.vertexSet().size());
+		Hashtable t = trusts(src, 2, 0.85, 0.9, rg.vertexSet().size(), rg);
 		System.out.println(src);
 		System.out.println(sink);
 		System.out.println(t.get(sink));
@@ -163,11 +146,10 @@ public class Appleseed extends ReputationAlgorithm
 	
 	public Appleseed()
 	{
-		outputGraphType = OutputGraphType.COPY_INPUT_GRAPH;
 	}
 	
 	private void energize(double energy, Agent s, double threshold, int numAgents, 
-			double[] energies, double decay)
+			double[] energies, double decay, ReputationGraph rg)
 	{
 		if(energies == null) energies = new double[numAgents];
 		
@@ -180,17 +162,17 @@ public class Appleseed extends ReputationAlgorithm
 		 */
 		
 		//it's ok to do type casting to reputation edge because the preconditions guarantee that its a rep edge.
-		for(ReputationEdge edge : (Set<ReputationEdge>) m_graph2Listen.outgoingEdgesOf(s))
+		for(ReputationEdge edge : (Set<ReputationEdge>) rg.outgoingEdgesOf(s))
 		{
 			if(edge.getReputation() >= 0) totalOutgoingEdgesWeights =+ edge.getReputation();
 		}
 		
 		if(energy > threshold)
 		{
-			for(ReputationEdge edge : (Set<ReputationEdge>) m_graph2Listen.outgoingEdgesOf(s))
+			for(ReputationEdge edge : (Set<ReputationEdge>) rg.outgoingEdgesOf(s))
 			{
 				energize( (1 - decay) * energies[s.id] * edge.getReputation(), (Agent) edge.sink, 
-						threshold, numAgents, energies, decay);
+						threshold, numAgents, energies, decay, rg);
 			}
 		}
 		return;
@@ -199,7 +181,7 @@ public class Appleseed extends ReputationAlgorithm
 	
 	
 	
-	private Hashtable<Agent, Double> trusts(Agent s, double in, double decay, double threshold, int totalNumAgents) throws Exception
+	private Hashtable<Agent, Double> trusts(Agent s, double in, double decay, double threshold, int totalNumAgents, ReputationGraph rg) throws Exception
 	{
 		Hashtable<Agent, Double> in_0 = new  Hashtable<Agent, Double>();
 		Hashtable<Agent, Double> in_1 = new  Hashtable<Agent, Double>();
@@ -241,7 +223,7 @@ public class Appleseed extends ReputationAlgorithm
 				trust_1.put(x, tempTrust_1);
 				
 				//copy the outgoing edges and add extra edges (x to s)
-				Set<ReputationEdge> outgoingEdges1 = (Set<ReputationEdge>) m_graph2Listen.outgoingEdgesOf(x);
+				Set<ReputationEdge> outgoingEdges1 = (Set<ReputationEdge>) rg.outgoingEdgesOf(x);
 				HashSet<ReputationEdge> outgoingEdges2 = new HashSet<ReputationEdge>(outgoingEdges1);
 				for(ReputationEdge edge : outgoingEdges1)
 				{
@@ -328,6 +310,13 @@ public class Appleseed extends ReputationAlgorithm
 	public Type getOutputGraphType() throws Exception
 	{
 		return Graph.Type.RG;
+	}
+
+	@Override
+	public ArrayList update(ArrayList<Token> tokens) throws Exception 
+	{
+		
+		return null;
 	}
 
 

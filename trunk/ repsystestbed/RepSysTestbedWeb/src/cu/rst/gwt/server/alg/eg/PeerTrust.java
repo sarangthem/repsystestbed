@@ -8,20 +8,23 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
-import cu.rst.gwt.server.alg.ReputationAlgorithm;
+import cu.rst.gwt.server.alg.Algorithm;
 import cu.rst.gwt.server.data.Feedback;
 import cu.rst.gwt.server.entities.Agent;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraphEdge;
 import cu.rst.gwt.server.graphs.Graph;
-import cu.rst.gwt.server.graphs.ReputationGraph;
 import cu.rst.gwt.server.graphs.Graph.Type;
+import cu.rst.gwt.server.graphs.ReputationEdge;
+import cu.rst.gwt.server.graphs.ReputationGraph;
+import cu.rst.gwt.server.petrinet.Place;
+import cu.rst.gwt.server.petrinet.Token;
 
 /**
  * @author partheinstein
  *
  */
-public class PeerTrust extends ReputationAlgorithm
+public class PeerTrust extends Algorithm
 {
 	
 	Hashtable trustScores = new Hashtable(); //key is agent id, value is trust score. using hashtable to improve performance.
@@ -31,21 +34,21 @@ public class PeerTrust extends ReputationAlgorithm
 	
 	public PeerTrust()
 	{
-		super.setOutputGraphType(OutputGraphType.COMPLETE_GRAPH);
+		
 	}
 	
 
-	public double calculateTrustScoreInternal(Agent src, Agent sink, ArrayList nodesVisited) throws Exception
+	public double calculateTrustScoreInternal(Agent src, Agent sink, ArrayList nodesVisited, FeedbackHistoryGraph fhg) throws Exception
 	{
 
 		//if hasn't been already added, then add it
 		if(!this.nodeAlreadyVisited(nodesVisited, sink)) nodesVisited.add(sink); 
 		
 		//get all incoming edges of the given sink node
-		Set<FeedbackHistoryGraphEdge> incomingEdges = super.m_graph2Listen.incomingEdgesOf(sink);
+		Set<FeedbackHistoryGraphEdge> incomingEdges = fhg.incomingEdgesOf(sink);
 		
 		//nobody has had transactions with this sink, return a default trust score
-		int numberOfAgentsInSystem = super.m_graph2Listen.vertexSet().size();
+		int numberOfAgentsInSystem = fhg.vertexSet().size();
 		if(incomingEdges.isEmpty()) return (double)1/(double)numberOfAgentsInSystem;  
 		
 		
@@ -86,7 +89,7 @@ public class PeerTrust extends ReputationAlgorithm
 			{
 //				System.out.println("Never visited agent" + e.src);
 				//breadth-first
-				temp = (Double)this.calculateTrustScoreInternal(null, (Agent)f.getAssesor(), nodesVisited); //recursive
+				temp = (Double)this.calculateTrustScoreInternal(null, (Agent)f.getAssesor(), nodesVisited, fhg); //recursive
 			}
 			
 			totalTrustScore = totalTrustScore + temp;
@@ -132,12 +135,6 @@ public class PeerTrust extends ReputationAlgorithm
 		return trustScoreToBeCalculated;
 	}
 	
-	@Override
-	public double calculateTrustScore(Agent src, Agent sink) throws Exception
-	{	
-		return calculateTrustScoreInternal(src, sink, new ArrayList<Agent>());
-	}
-	
 	private boolean nodeAlreadyVisited(ArrayList nodesVisited, Agent b)
 	{
 		Iterator it = nodesVisited.iterator();
@@ -149,22 +146,6 @@ public class PeerTrust extends ReputationAlgorithm
 		return false;
 	}
 
-
-
-	@Override
-	public void start() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void finish() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public boolean assertGraph2ListenType(Graph g) throws Exception
@@ -202,6 +183,44 @@ public class PeerTrust extends ReputationAlgorithm
 	public Type getOutputGraphType() throws Exception
 	{
 		return Graph.Type.RG;
+	}
+
+
+	@Override
+	public ArrayList update(ArrayList<Token> tokens) throws Exception 
+	{
+		//FHG already has all the feedbacks. Why do I need to know about the exact changes?
+		//I guess some algorithms don't need to loop through the entire FHG every time there is a token.
+		//Consider FHG -> PT -> RG where a token is placed in FHG everytime there a new feedback is added.
+		//In this case, we may want PT to use only the feedback (rather than the entire graph). Test this scenario
+		//But for a simple scenario, its ok to run PT over the entire FHG for every feedback.
+		
+		Token t = null;
+		ArrayList<ReputationEdge> changes = new ArrayList<ReputationEdge>();
+		
+		//cheating. I should be using all tokens
+		if(tokens!=null && tokens.size()>0)
+		{
+			t = tokens.get(0);
+			if(t!=null)
+			{
+				FeedbackHistoryGraph fhg = (FeedbackHistoryGraph) ((Place) t.m_place).getGraph();
+				for(Agent src : (Set<Agent>)fhg.vertexSet())
+				{
+					for(Agent sink : (Set<Agent>)fhg.vertexSet())
+					{
+						if(!src.equals(sink))
+						{
+							double rep = calculateTrustScoreInternal(src, sink, new ArrayList<Agent>(), fhg);
+							changes.add(new ReputationEdge(src, sink, rep));
+						}
+					}
+				}
+			}
+		}
+		
+		return changes;
+		
 	}
 
 }
