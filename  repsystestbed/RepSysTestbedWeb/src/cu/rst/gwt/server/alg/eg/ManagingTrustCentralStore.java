@@ -72,23 +72,21 @@ public class ManagingTrustCentralStore
 	 * TODO note that here all agents have the same threshold. you might want to change this later. 
 	 * TODO make use of exceptions
 	 */
-	public void readData(ArrayList feedbacks, double threshold, int maxAgentId) throws Exception
+	public void readData(ArrayList feedbacks, int maxAgentId) throws Exception
 	{
 		this.maxAgentId = maxAgentId;
 		Iterator it = feedbacks.iterator();
 		while(it.hasNext())
 		{
-			Feedback tr = (Feedback)it.next();
+			Feedback f = (Feedback)it.next();
 			//we care only if it is  complaint
-			addTransaction(tr, threshold, maxAgentId);
+			addTransaction(f, maxAgentId);
 		}
 	}
 	
-	public void addTransaction(Feedback tr, double threshold, int maxAgentId)
+	public void addTransaction(Feedback f, int maxAgentId)
 	{
-		//System.out.println("tr.value.doubleValue():-" + tr.value.doubleValue());
-		//System.out.println("threshold:- " + threshold);
-		if(tr.value.doubleValue()<threshold)
+		if(f.value.doubleValue()==0)
 		{
 			/*
 			 * need to pick arbitrary agents to store the data. this should be random but in this version, 
@@ -116,7 +114,7 @@ public class ManagingTrustCentralStore
 				while(it1.hasNext())
 				{
 					MTCentralStoreRecord record = (MTCentralStoreRecord)it1.next();
-					if(record.aboutAgent.id==tr.getAssesee().id)
+					if(record.aboutAgent.id==f.getAssesee().id)
 					{
 						record.complaints++; 
 						found=true;
@@ -126,7 +124,7 @@ public class ManagingTrustCentralStore
 				if(!found)
 				{
 					//none of the MTCentralStoreRecord is for the sink node
-					MTCentralStoreRecord record = new MTCentralStoreRecord(tr.getAssesee());
+					MTCentralStoreRecord record = new MTCentralStoreRecord(f.getAssesee());
 					allComplaints.add(record); 
 					
 				}
@@ -134,7 +132,7 @@ public class ManagingTrustCentralStore
 				complaintsAgainst.put(randomAgentId, allComplaints); //add back
 			}else //this agent never stored anything before
 			{
-				MTCentralStoreRecord record = new MTCentralStoreRecord(tr.getAssesee());
+				MTCentralStoreRecord record = new MTCentralStoreRecord(f.getAssesee());
 				ArrayList complaints = new ArrayList();
 				complaints.add(record);
 				//complaintsAgainst.put(sat.source.id, complaints); //TODO need to change so that the source doesn't store
@@ -158,7 +156,7 @@ public class ManagingTrustCentralStore
 					 * are the same. but the if(record.aboutAgent.id==sat.sink.id)  is there for future when different agents
 					 * would be storing about different agents.
 					 */
-					if(record.aboutAgent.id==tr.getAssesee().id) 
+					if(record.aboutAgent.id==f.getAssesee().id) 
 					{
 						record.complaints++; 
 						found=true;
@@ -173,7 +171,7 @@ public class ManagingTrustCentralStore
 				if(!found)
 				{
 					//none of the MTCentralStoreRecord is for the sink node
-					MTCentralStoreRecord record = new MTCentralStoreRecord(tr.getAssesee());
+					MTCentralStoreRecord record = new MTCentralStoreRecord(f.getAssesee());
 					complaints.add(record); 
 					
 				}
@@ -183,7 +181,7 @@ public class ManagingTrustCentralStore
 				
 			}else//this agent never stored anything before
 			{
-				MTCentralStoreRecord record = new MTCentralStoreRecord(tr.getAssesee());
+				MTCentralStoreRecord record = new MTCentralStoreRecord(f.getAssesee());
 				complaints = new ArrayList();
 				complaints.add(record);
 				//complaintsBy.put(sat.sink.id, complaints);
@@ -295,6 +293,7 @@ public class ManagingTrustCentralStore
 		Agent b = new Agent();
 		Agent c = new Agent();
 		Agent d = new Agent();
+		//change the following to 0 for complaints and 1 for non-complaint
 		Feedback tr = new Feedback(a,b,0.2);
 		Feedback tr1 = new Feedback(c,b,0.2);
 		Feedback tr2 = new Feedback(d,b,0.2);
@@ -323,7 +322,7 @@ public class ManagingTrustCentralStore
 		transactions.add(tr11);
 
 		ManagingTrustCentralStore store = new ManagingTrustCentralStore();
-		store.readData(transactions, 0.5, 4);
+		store.readData(transactions, 4);
 		
 		store.printMTCentralStore();
 		

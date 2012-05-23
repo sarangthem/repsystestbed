@@ -2,6 +2,7 @@ package cu.rst.gwt.server.petrinet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import cu.rst.gwt.server.graphs.Graph;
 import cu.rst.gwt.server.util.Util;
@@ -33,6 +34,11 @@ public class Place implements PetriNetElementIntf
 	public ArrayList<Token> getTokens()
 	{
 		return m_tokens;
+	}
+	
+	public List<Token> getTokens(int n)
+	{
+		return (m_tokens!=null)? (List<Token>)m_tokens.subList(0, n) : new ArrayList<Token>();
 	}
 	
 	public int numTokens()

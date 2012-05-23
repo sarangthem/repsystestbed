@@ -57,5 +57,13 @@ public class ReputationEdge extends TestbedEdge implements Comparable
 	{
 		return "Edge: (" + (Agent)src + ", " + (Agent)sink + "," + reputation + ")";
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(!(o instanceof ReputationEdge)) return false;
+		ReputationEdge re = (ReputationEdge)o;
+		return re.sink.equals(sink) && re.src.equals(src);
+	}
 
 }
