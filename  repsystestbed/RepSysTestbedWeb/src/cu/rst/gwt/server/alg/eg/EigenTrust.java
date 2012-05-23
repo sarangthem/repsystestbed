@@ -11,16 +11,19 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import Jama.Matrix;
-import cu.rst.gwt.server.alg.ReputationAlgorithm;
+import cu.rst.gwt.server.alg.Algorithm;
+import cu.rst.gwt.server.petrinet.Place;
+import cu.rst.gwt.server.petrinet.Token;
 import cu.rst.gwt.server.data.Feedback;
 import cu.rst.gwt.server.entities.Agent;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraphEdge;
 import cu.rst.gwt.server.graphs.Graph;
+import cu.rst.gwt.server.graphs.ReputationEdge;
 import cu.rst.gwt.server.graphs.ReputationGraph;
 import cu.rst.gwt.server.graphs.Graph.Type;
 
-public class EigenTrust extends ReputationAlgorithm
+public class EigenTrust extends Algorithm
 {
 
 	//config parameters that are used by the algorithm
@@ -29,11 +32,9 @@ public class EigenTrust extends ReputationAlgorithm
 	private static String LOG4JPPROPERTIES = "Log4jPropLocation";
 	
 	private final int DEFAULT_ITERATIONS = 20;
-	private final double DEFAULT_THRESHOLD2SATISFY = 0.7;
 
 	private int iterations;
 	private Matrix trustScores;
-	private double threshold2Satisfy;
 	private double[][] cijMatrix;
 	private Hashtable<Integer, Integer> agentIdmapping;
 	private static double MINIMUM_TRUST_SCORE = 0.0;
@@ -46,27 +47,8 @@ public class EigenTrust extends ReputationAlgorithm
 	
 	public EigenTrust()
 	{
-		super.setOutputGraphType(OutputGraphType.COMPLETE_GRAPH);
 		this.iterations = DEFAULT_ITERATIONS;
-		this.threshold2Satisfy = DEFAULT_THRESHOLD2SATISFY;
 		this.agentIdmapping = new Hashtable<Integer, Integer>();
-		/*
-		if(super.config!=null)
-		{
-			try
-			{
-				this.iterations = config.getIntegerValue(EigenTrust.NUMITERATIONS);
-				this.threshold2Satisfy = config.getDoubleValue(EigenTrust.THRESHOLD2SATISFY);
-			}catch(Exception e)
-			{
-				this.iterations = DEFAULT_ITERATIONS;
-				this.threshold2Satisfy = DEFAULT_THRESHOLD2SATISFY;	
-			}
-		}else
-		{
-			this.iterations = DEFAULT_ITERATIONS;
-			this.threshold2Satisfy = DEFAULT_THRESHOLD2SATISFY;
-		}*/
 	}
 	
 	@Override
@@ -81,21 +63,15 @@ public class EigenTrust extends ReputationAlgorithm
 				if(iterations>0) this.iterations = iterations;
 				else this.iterations = DEFAULT_ITERATIONS;
 				
-				Double threshold2Satisfy = new Double(config.getProperty(EigenTrust.THRESHOLD2SATISFY));
-				if(threshold2Satisfy>=0) this.threshold2Satisfy = threshold2Satisfy;
-				else this.threshold2Satisfy = DEFAULT_THRESHOLD2SATISFY;
-				
 			}
 			catch(Exception e)
 			{
 				this.iterations = DEFAULT_ITERATIONS;
-				this.threshold2Satisfy = DEFAULT_THRESHOLD2SATISFY;
 			}
 		}
 		else
 		{
 			this.iterations = DEFAULT_ITERATIONS;
-			this.threshold2Satisfy = DEFAULT_THRESHOLD2SATISFY;
 		}
 		if(config.getProperty(this.LOG4JPPROPERTIES)==null)
 			BasicConfigurator.configure();
@@ -104,48 +80,14 @@ public class EigenTrust extends ReputationAlgorithm
 		
 	}
 	
-	/**
-	 * @param iterations
-	 * @param threshold2Satisfy
-	 */
-	/*
-	public EigenTrust(int iterations, double threshold2Satisfy)
-	{
-		this.iterations = iterations;
-		this.threshold2Satisfy = threshold2Satisfy;
-		super.setGlobal(true);
-	}
-	*/
-	
-	/*
-	public EigenTrust(String algConfigFile) throws Exception
-	{
-		this();
-		try
-		{
-			config = new AlgConfig(algConfigFile);
-			this.iterations = config.getIntegerValue(EigenTrust.NUMITERATIONS);
-			this.threshold2Satisfy = config.getDoubleValue(EigenTrust.THRESHOLD2SATISFY);
-			
-		}catch(Exception e)
-		{
-			throw new Exception("Cannot instantiate EigenTrust algorithm", e); 
-		}
-		
-	}
-	*/
 	
 	@Override
-	public double calculateTrustScore(Agent src, Agent sink) throws Exception
+	public ArrayList<ReputationEdge> update(ArrayList<Token> tokens) throws Exception
 	{
 		
-		if(super.m_graph2Listen==null || super.m_graph2Listen.vertexSet().size()==0 
-				|| super.m_graph2Listen.edgeSet().size()==0)
-		{
-			throw new Exception("Feedback History graph not initialized");
-		}
 		
 		if(this.iterations<1) throw new Exception("Number of iterations is less than 1");
+		ArrayList<ReputationEdge> changes = new ArrayList<ReputationEdge>();
 
 		/**
 		 * first time this method is invoked, it actually calculates the trust scores for all nodes 
@@ -159,12 +101,23 @@ public class EigenTrust extends ReputationAlgorithm
 		 * 5. get tij matrix by multiplying transformed cij
 		 */
 		
-		//if(!this.matrixFilled) 
+		for(Token t : tokens)
 		{
-			int numVertices = super.m_graph2Listen.vertexSet().size();
+			Place place = (Place) t.m_place;
+			if(!(place.getGraph() instanceof FeedbackHistoryGraph))
+			{
+				throw new Exception("A FHG expected.");
+			}
+			
+			//ideally you should only be using the feedbacks in token t. Here we are cheating and using all the feedbacks
+			//but thats ok because ET uses the entire FHG anyways.
+		
+			FeedbackHistoryGraph fhg = (FeedbackHistoryGraph) place.getGraph();
+			
+			int numVertices = fhg.vertexSet().size();
 			cijMatrix = new double[numVertices][numVertices];
 			
-			Set<Agent> agents = super.m_graph2Listen.vertexSet();
+			Set<Agent> agents = fhg.vertexSet();
 			
 			int internalId=0;
 			this.agentIdmapping.clear();
@@ -176,7 +129,7 @@ public class EigenTrust extends ReputationAlgorithm
 			
 			for(Agent source : agents)
 			{
-				Set<FeedbackHistoryGraphEdge> allOutgoingEdges = super.m_graph2Listen.outgoingEdgesOf(source); 
+				Set<FeedbackHistoryGraphEdge> allOutgoingEdges = fhg.outgoingEdgesOf(source); 
 				
 				
 				//fill up cij matrix
@@ -186,7 +139,9 @@ public class EigenTrust extends ReputationAlgorithm
 					double sij=0;
 					for(Feedback feedback : feedbacks)
 					{
-						if(feedback.value >= threshold2Satisfy) sij++;
+//						if(feedback.value >= threshold2Satisfy) sij++;
+//						else sij--;
+						if(feedback.value == 1) sij++;
 						else sij--;
 					}
 					
@@ -258,19 +213,27 @@ public class EigenTrust extends ReputationAlgorithm
 			}
 			
 			this.trustScores = tkMatrix;
-//			for(int i=0;i<this.iterations;i++) trans = orig.times(trans);
-//			trustScores = trans.transpose(); //re-transpose
-//			
-			//this.matrixFilled = true;
 
 			logger.info("cijMatrix after multiplying " + this.iterations + " times = " +  this.printMatrix(trustScores.getArray()));
 			
-		}	
+			//create all the reputation edges that needs to be added to RG. Its a complete graph
+			for(Agent src : (Set<Agent>)fhg.vertexSet())
+			{
+				for(Agent sink : (Set<Agent>)fhg.vertexSet())
+				{
+					if(!src.equals(sink))
+					{
+						ReputationEdge edge = new ReputationEdge(src, sink, trustScores.getArray()[this.agentIdmapping.get(sink.id)][0]);
+						changes.add(edge);
+					}
+				}
+			}
+			
+		}
 		
-		return trustScores.getArray()[this.agentIdmapping.get(sink.id)][0];
-		
-	}
+		return changes;
 
+	}
 	
 	public String printMatrix(double[][] mat)
 	{
@@ -291,21 +254,6 @@ public class EigenTrust extends ReputationAlgorithm
 		}
 		return output;
 
-	}
-
-
-	@Override
-	public void start() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void finish() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

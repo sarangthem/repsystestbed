@@ -25,7 +25,7 @@ import cu.rst.gwt.server.util.Util;
  * - A positive feedback results in increase in trust
  * - A negative feedback results in decrease in trust
  * If either of these 2 conditions fail, an exception is thrown. 
- *
+ *@deprecated
  */
 public class TrustEvolutionTester1 extends EvaluationAlgorithm
 {

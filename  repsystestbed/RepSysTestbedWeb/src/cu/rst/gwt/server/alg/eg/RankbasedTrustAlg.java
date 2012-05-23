@@ -18,7 +18,7 @@ import cu.rst.gwt.server.graphs.Graph.Type;
 /**
  * @author partheinstein
  * This is an implementation of a rank based trust algorithm.
- *
+ * @deprecated
  */
 public class RankbasedTrustAlg extends TrustAlgorithm
 {

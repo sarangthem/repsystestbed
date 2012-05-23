@@ -11,14 +11,15 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import cu.rst.gwt.server.alg.ReputationAlgorithm;
+import cu.rst.gwt.server.alg.Algorithm;
 import cu.rst.gwt.server.data.Feedback;
 import cu.rst.gwt.server.entities.Agent;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
 import cu.rst.gwt.server.graphs.FeedbackHistoryGraphEdge;
 import cu.rst.gwt.server.graphs.Graph;
-import cu.rst.gwt.server.graphs.ReputationGraph;
 import cu.rst.gwt.server.graphs.Graph.Type;
+import cu.rst.gwt.server.graphs.ReputationGraph;
+import cu.rst.gwt.server.petrinet.Token;
 
 
 /**
@@ -26,7 +27,7 @@ import cu.rst.gwt.server.graphs.Graph.Type;
  * Note that ManagingTrust produces a distrust graph. 
  *
  */
-public class ManagingTrust extends ReputationAlgorithm
+public class ManagingTrust extends Algorithm
 {
 	
 	public String THRESHOLD2SATISFY = "threshold2Satisfy";
@@ -43,7 +44,6 @@ public class ManagingTrust extends ReputationAlgorithm
 	{
 		super();
 		store = new ManagingTrustCentralStore(); //filled when addExperience method is invoked
-		super.setOutputGraphType(OutputGraphType.COMPLETE_GRAPH);
 	}
 	
 	@Override
@@ -84,10 +84,10 @@ public class ManagingTrust extends ReputationAlgorithm
 	 */
 	
 	
-	public Double calculateTrustScoreInternal(Agent sink) throws Exception
+	public Double calculateTrustScoreInternal(Agent sink, FeedbackHistoryGraph fhg) throws Exception
 	{
 		//get all the feedbacks in the system. this may be resource intensive
-		Set<FeedbackHistoryGraphEdge> allEdges = super.m_graph2Listen.edgeSet();
+		Set<FeedbackHistoryGraphEdge> allEdges = fhg.edgeSet();
 		ArrayList<Feedback> allFeedbacks = new ArrayList<Feedback>();
 		for(FeedbackHistoryGraphEdge e : allEdges)
 		{
@@ -99,7 +99,7 @@ public class ManagingTrust extends ReputationAlgorithm
 		
 		if(allFeedbacks.isEmpty()) throw new Exception("Add a feedback before calling this method");
 		
-		maxAgents = super.m_graph2Listen.vertexSet().size();
+		maxAgents = fhg.vertexSet().size();
 		numArbitraryAgentsToPick = maxAgents; //TODO hardcoded, change it.
 		int total = 0;
 		int s = 0;
@@ -312,27 +312,14 @@ public class ManagingTrust extends ReputationAlgorithm
 	}
 
 
-	@Override
-	public double calculateTrustScore(Agent src, Agent sink) throws Exception
+	public double calculateTrustScore(Agent src, Agent sink, FeedbackHistoryGraph fhg) throws Exception
 	{
 		logger.debug("Calculating trustscore:-" + src + " " +sink);
-		return calculateTrustScoreInternal(sink);
+		return calculateTrustScoreInternal(sink, fhg);
 	}
 
 
-	@Override
-	public void start() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void finish() throws Exception
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 	@Override
 	public boolean assertGraph2ListenType(Graph g) throws Exception
@@ -365,6 +352,12 @@ public class ManagingTrust extends ReputationAlgorithm
 	@Override
 	public Type getOutputGraphType() throws Exception
 	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ArrayList update(ArrayList<Token> tokens) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

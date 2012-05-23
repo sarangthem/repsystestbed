@@ -2,12 +2,6 @@ package cu.rst.gwt.server.entities;
 
 import org.apache.log4j.Logger;
 
-import cu.rst.gwt.server.alg.ReputationAlgorithm;
-import cu.rst.gwt.server.alg.TrustAlgorithm;
-import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
-import cu.rst.gwt.server.graphs.ReputationGraph;
-import cu.rst.gwt.server.graphs.TrustGraph;
-
 
 public class Agent 
 {

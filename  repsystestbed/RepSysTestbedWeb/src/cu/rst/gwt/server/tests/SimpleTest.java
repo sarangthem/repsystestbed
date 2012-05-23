@@ -1,19 +1,5 @@
 package cu.rst.gwt.server.tests;
 
-import java.util.List;
-
-import org.apache.log4j.BasicConfigurator;
-
-import cu.rst.gwt.server.alg.ReputationAlgorithm;
-import cu.rst.gwt.server.alg.TrustAlgorithm;
-import cu.rst.gwt.server.alg.eg.EigenTrust;
-import cu.rst.gwt.server.alg.eg.RankbasedTrustAlg;
-import cu.rst.gwt.server.data.Feedback;
-import cu.rst.gwt.server.graphs.FeedbackHistoryEdgeFactory;
-import cu.rst.gwt.server.graphs.FeedbackHistoryGraph;
-import cu.rst.gwt.server.graphs.ReputationGraph;
-import cu.rst.gwt.server.graphs.TrustGraph;
-import cu.rst.gwt.server.util.DefaultArffFeedbackGenerator;
 
 
 public class SimpleTest

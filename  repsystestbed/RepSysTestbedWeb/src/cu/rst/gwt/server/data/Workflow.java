@@ -39,6 +39,7 @@ import cu.rst.gwt.server.util.Util;
  * 6. Feedback History Graph -> reputation alg -> reputation graph -> reputation graph
  * work flow = {FRT, FR, FRR, RR, RT, RRT}
  *  
+ *  @deprecated
  * 
  *
  */
