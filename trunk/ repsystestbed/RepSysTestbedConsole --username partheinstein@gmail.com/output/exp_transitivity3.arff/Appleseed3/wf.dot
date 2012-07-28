@@ -1,0 +1,1 @@
+digraph G {RG22[shape=circle,label=RG22];Appleseed3[shape=rect,height=0.01,width=1, label=Appleseed3];RG22 -> Appleseed3[label=""];RG23[shape=circle,label=RG23];Appleseed3[shape=box];Appleseed3 -> RG23[label=""];}

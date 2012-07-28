@@ -1,0 +1,1 @@
+digraph G {RG20[shape=circle,label=RG20];EigenTrustv22[shape=rect,height=0.01,width=1, label=EigenTrustv22];RG20 -> EigenTrustv22[label=""];RG21[shape=circle,label=RG21];EigenTrustv22[shape=box];EigenTrustv22 -> RG21[label=""];}
