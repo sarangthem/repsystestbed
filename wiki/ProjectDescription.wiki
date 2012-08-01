@@ -1,3 +1,4 @@
+#summary Description of the project
 = Introduction =
 There are many trust models in the literature that address the problem of computing trust in agent systems but differ in the type of rating used (satisfaction ratings, certifications and trust ratings), in whether they calculate global or local trust and, finally, in how the rating is used to decide whether to trust an agent. This makes it challenging to compare and evaluate them against attack scenarios such as self-promoting, white-washing,
 slandering, and introducing Sybils. To analyze the performance of trust models, we need a testbed that is generic enough to accommodate as many reputation systems as possible. Repsyst aims to fill this requirement.
