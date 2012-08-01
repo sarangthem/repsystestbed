@@ -1,0 +1,32 @@
+#summary Examples of how to use the testbed
+
+= Samples =
+
+*Example 1 - Simple experiment for PeerTrust*
+{{{
+PetriNet workflow = new PetriNet(new PetriNetEdgeFactory());
+
+FHG fhg0 = new FHG(new FeedbackHistoryEdgeFactory());
+Place fhgPlace0 = new Place(fhg0);
+
+PeerTrust pt0 = new PeerTrust();
+Transition ptTransition0 = new Transition(pt0);
+ptTransition0.setWorkflow(workflow);
+
+RG rg1 = new RG(new ReputationEdgeFactory());
+Place rgPlace1 = new Place(rg1);						
+
+//create the workflow
+workflow.addEdge(fhgPlace0, ptTransition0, 1);
+workflow.addEdge(ptTransition0, rgPlace1, 1);
+		
+//parse the feedbacks from the arff file
+DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+ArrayList<Feedback> feedbacks1 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName1 + ".arff");
+
+//put the first token and fire pt
+Token t1 = new Token(feedbacks1, fhgPlace0);
+fhgPlace0.putToken(t1, true);
+ptTransition0.fire();
+
+}}}
