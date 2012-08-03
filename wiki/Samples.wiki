@@ -37,12 +37,6 @@ PeerTrust extends from Algorithm class (abstract). As a result, it must implemen
 @Override
 	public ArrayList update(ArrayList<Token> tokens) throws Exception 
 	{
-		//FHG already has all the feedbacks. Why do I need to know about the exact changes?
-		//I guess some algorithms don't need to loop through the entire FHG every time there is a token.
-		//Consider FHG -> PT -> RG where a token is placed in FHG everytime there a new feedback is added.
-		//In this case, we may want PT to use only the feedback (rather than the entire graph). Test this scenario
-		//But for a simple scenario, its ok to run PT over the entire FHG for every feedback.
-		
 		Token t = null;
 		ArrayList<ReputationEdge> changes = new ArrayList<ReputationEdge>();
 		
