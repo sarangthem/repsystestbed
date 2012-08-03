@@ -1,6 +1,5 @@
 #summary Third Party library list
 
-= List =
 The following 3rd party libraries are required to build this project:
   * collections-generic-4.01.jar
   * commons-math-2.2.jar
