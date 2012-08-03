@@ -31,7 +31,7 @@ ptTransition0.fire();
 
 }}}
 
-PeerTrust extends from Algorithm class (abstract). As a result, it must implement PetriNetElementIntf::ArrayList update(ArrayList<Token> tokens, Place p). The tokens contain the changes that occurred in their corresponding place. In the example above, the changes are feedbacks in FHG. The output is a set of changes that is to be reflected in the outgoing place. In this case, it is RG. Thus, PeerTrust returns a list of reputation graph edges. 
+PeerTrust extends from Algorithm class (abstract). As a result, it must implement {{{PetriNetElementIntf::ArrayList update(ArrayList<Token> tokens, Place p)}}}. The tokens contain the changes that occurred in their corresponding place. In the example above, the changes are feedbacks in FHG. The output is a set of changes that is to be reflected in the outgoing place. In this case, it is RG. Thus, PeerTrust returns a list of reputation graph edges. 
 Notes: 
  * The testbed checks the type of the elements in the return list to determine whether the output place can update itself. For example, a list of reputation edges output by PeerTrust is passed as input to outgoing place RG with which it can update itself.
- * Both Algorithm and Graph implements ArrayList update(ArrayList<Token> tokens, Place p).
+ * Both Algorithm and Graph implements {{{ArrayList update(ArrayList<Token> tokens, Place p)}}}.
