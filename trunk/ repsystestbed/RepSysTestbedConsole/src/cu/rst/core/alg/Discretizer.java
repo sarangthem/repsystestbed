@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.core.alg;
 
 import java.util.ArrayList;
@@ -12,7 +9,11 @@ import cu.rst.core.graphs.Graph.Type;
 import cu.rst.core.petrinet.Token;
 
 /**
+ * This is a discretization algorithm that takes FHG0 where the edge values are continuous as input and 
+ * outputs FHG1 where the edge vales are either -1 or 1. For e.g., if f(a,b) in FHG0 is greater than some threshold, then f'(a,b) in 
+ * FHG1 is 1, otherwise -1.
  * @author partheinstein
+ *
  *
  */
 public class Discretizer extends Algorithm 

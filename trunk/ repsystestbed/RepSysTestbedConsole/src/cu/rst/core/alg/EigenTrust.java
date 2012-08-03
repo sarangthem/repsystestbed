@@ -22,6 +22,13 @@ import cu.rst.core.graphs.ReputationEdge;
 import cu.rst.core.petrinet.Place;
 import cu.rst.core.petrinet.Token;
 
+/**
+ * EigenTrust is an algorithm that takes a FHG and outputs RG, where the trust scores are global. For more reference,
+ * refer to "S. D. Kamvar, M. T. Schlosser, and H. Garcia-Molina, The eigentrust algorithm for reputation management in p2p networks," 
+ * in WWW '03 Proceedings of the 12th international conference on World Wide Web, pp. 640-651, ACM, 2003. 
+ * @author partheinstein
+ *
+ */
 public class EigenTrust extends Algorithm
 {
 

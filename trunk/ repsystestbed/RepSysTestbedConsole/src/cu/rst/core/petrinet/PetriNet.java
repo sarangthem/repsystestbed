@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.core.petrinet;
 
 import java.util.Set;
@@ -12,8 +9,14 @@ import cu.rst.util.Util;
 
 /**
  * @author partheinstein
- * PetriNet is a simple directed graph which edges from place to sink and sink to place.
- * Note: Loops are not allowed in a simple directed graph
+ * PetriNet is a directed graph which edges from place to sink and sink to place.
+ * A Petri Net is created as follows:
+ * <br>
+ * <code>
+ * PetriNet workflow = new PetriNet(new PetriNetEdgeFactory()); <br>
+ * 
+ * </code>
+ * 
  */
 public class PetriNet extends SimpleDirectedGraph<PetriNetElementIntf, PetriNetEdge>
 {
@@ -25,7 +28,14 @@ public class PetriNet extends SimpleDirectedGraph<PetriNetElementIntf, PetriNetE
 		super(pnef);	
 	}
 	
-	public void addEdge(PetriNetElementIntf src, PetriNetElementIntf sink, int tokens) throws Exception
+	/**
+	 * Connects two Petri Net elements.
+	 * @param src Source element of the edge
+	 * @param sink Sink element of the edge
+	 * @param tokens Edge weight (typically it is 1.0)
+	 * @throws Exception
+	 */
+	public PetriNetEdge addEdge(PetriNetElementIntf src, PetriNetElementIntf sink, int tokens) throws Exception
 	{
 		logger.debug("addEdge invoked.");
 		Util.assertNotNull(src);
@@ -63,8 +73,8 @@ public class PetriNet extends SimpleDirectedGraph<PetriNetElementIntf, PetriNetE
 		PetriNetEdge e = this.getEdge(src, sink);
 		e.setTokens(tokens);
 		
-		
 		logger.debug("Edge added: " + e);
+		return e;
 		
 	}
 	
@@ -72,7 +82,9 @@ public class PetriNet extends SimpleDirectedGraph<PetriNetElementIntf, PetriNetE
 	 * Recursive depth first search.
 	 * @param p place to start
 	 * @throws Exception
+	 * 
 	 */
+	@Deprecated
 	public void traverse(Place p) throws Exception
 	{
 		logger.debug("traverse invoked()");

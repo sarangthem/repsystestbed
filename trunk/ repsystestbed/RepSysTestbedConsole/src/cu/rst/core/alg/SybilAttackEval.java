@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.core.alg;
 
 import java.util.ArrayList;

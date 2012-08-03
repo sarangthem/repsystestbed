@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.core.alg;
 
 import java.util.ArrayList;
@@ -22,6 +19,8 @@ import cu.rst.core.petrinet.Place;
 import cu.rst.core.petrinet.Token;
 
 /**
+ * An implementation of "L. Xiong and L. Liu, Peertrust: Supporting reputation-based trust for peer-to-peer electronic communities," 
+ * IEEE Transactions on Knowledge and Data Engineering, vol. 16, pp. 843-857, July 2004.
  * @author partheinstein
  *
  */

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.core.graphs;
 
 import java.util.ArrayList;

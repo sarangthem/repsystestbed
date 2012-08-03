@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.core.alg;
 
 import java.util.ArrayList;
@@ -21,8 +18,8 @@ import cu.rst.core.petrinet.Place;
 import cu.rst.core.petrinet.Token;
 
 /**
- * @author partheinstein
  * This version of ET takes a rep graph and outputs a rep graph
+ * @author partheinstein
  *
  */
 public class EigenTrustv2 extends Algorithm

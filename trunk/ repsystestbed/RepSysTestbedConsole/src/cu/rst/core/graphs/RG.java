@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.jgrapht.alg.TransitiveClosure;
 
 import cu.rst.core.petrinet.Token;
 import cu.rst.util.Util;
-
+/**
+ * This class models a Reputation graph.
+ * @author pchandra
+ *
+ */
 public class RG extends Graph<Agent, ReputationEdge>
 {
 

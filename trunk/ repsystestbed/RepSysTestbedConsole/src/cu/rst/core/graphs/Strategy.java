@@ -6,7 +6,7 @@ package cu.rst.core.graphs;
  * @author pchandra
  *
  */
-
+@Deprecated
 public class Strategy 
 {	
 	private int numberOfFeedbacks;
