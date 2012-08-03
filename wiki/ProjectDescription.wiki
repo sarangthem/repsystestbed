@@ -13,5 +13,7 @@ The input and output to trust algorithms are modeled as graphs which can be of t
 *Input and Output of Algorithms*
 We represent an algorithm as transitions, input places as input parameters, and output places as output parameters of the algorithm. The places can be graphs, boolean values, numerical values, agents, etc. The signature of the algorithm is defined by the structure of a Petri net. The table below provides examples of algorithm signatures and their corresponding Petri net structures. 
 
+https://repsystestbed.googlecode.com/files/TableAlgSamplesAndPetriNets.png
+
 *Token as Events*
 A token in a place indicates that an event associated with that place has occured and therefore the place is ready to processed. Our testbed allows the experimenter to specify how a token is associated with a change in a place. For example, a token may be put in an FHG place after n number of feedback is added to the graph. In another example, a token may be placed in an RG place to indicate that the graph has been updated.
