@@ -1,15 +1,16 @@
 #summary Third Party library list
 
 = List =
-* collections-generic-4.01.jar
-* commons-math-2.2.jar
-* drej.jar
-* Jama-1.0.2.jar
-* jgraph.jar
-* jgrapht-jdk1.6.jar
-* jgraphx.jar
-* jung-algorithms-2.0.1.jar
-* jung-api-2.0.1.jar
-* jung-visualization-2.0.1.jar
-* log4j-1.2.16.jar
-* weka.jar
+The following is:
+  * A list
+  * Of bulleted items
+    # This is a numbered sublist
+    # Which is done by indenting further
+  * And back to the main bulleted list
+
+ * This is also a list
+ * With a single leading space
+ * Notice that it is rendered
+  # At the same levels
+  # As the above lists.
+ * Despite the different indentation levels.
