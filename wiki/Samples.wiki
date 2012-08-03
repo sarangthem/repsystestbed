@@ -3,6 +3,11 @@
 = Samples =
 
 *Example 1 - Simple experiment for PeerTrust*
+Suppose you want to test PeerTrust algorithm. According to our Testbed, it takes a Reputation Graph (RG) and outputs another RG. This flow can be shown using the  Petri Net below:
+
+http://repsystestbed.googlecode.com/files/PT_PetriNet.png
+
+Sample code:
 {{{
 PetriNet workflow = new PetriNet(new PetriNetEdgeFactory());
 
