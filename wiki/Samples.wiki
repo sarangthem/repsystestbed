@@ -3,7 +3,7 @@
 = Samples =
 
 *Example 1 - Simple experiment for PeerTrust*
-Suppose you want to test PeerTrust algorithm. According to our Testbed, it takes a Feedback History Graph (FHG) and outputs  Reputation Graph (RG). This flow can be shown using the  Petri Net below:
+Suppose you want to test PeerTrust algorithm. It takes a Feedback History Graph (FHG) and outputs  Reputation Graph (RG). This flow can be shown using the  Petri Net below:
 
 http://repsystestbed.googlecode.com/files/PT_PetriNet.png
 
