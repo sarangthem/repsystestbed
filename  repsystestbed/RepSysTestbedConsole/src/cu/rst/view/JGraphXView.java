@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.view;
 
 import java.util.HashMap;

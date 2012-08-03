@@ -8,6 +8,11 @@ import org.apache.log4j.Logger;
 import cu.rst.core.petrinet.Token;
 import cu.rst.util.Util;
 
+/**
+ * This class models a Trust graph.
+ * @author pchandra
+ *
+ */
 public class TG extends Graph<Agent, TrustEdge>
 {
 

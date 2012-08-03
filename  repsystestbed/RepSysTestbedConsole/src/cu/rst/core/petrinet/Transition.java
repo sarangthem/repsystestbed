@@ -18,8 +18,8 @@ import cu.rst.util.Util;
 /**
  * A transition embeds an algorithm and a transition is triggered only when there are enough tokens in the 
  * input places. Logic to determine if there are enough tokens is as follows:
- * total required tokens is the sum of weights on all incoming edges of t
- * total available tokens is the sum of the tokens in the input places of t
+ * <br> total required tokens is the sum of weights on all incoming edges of t
+ * <br> total available tokens is the sum of the tokens in the input places of t
  * if(total available tokens >= total required tokens) then the transition is fired.
  * Once the transition is fired, number of tokens deleted in each input place =
  * weight of the edge leading to it.
@@ -138,10 +138,14 @@ public class Transition implements PetriNetElementIntf
 	}
 	
 	/**
+	 * Fires the transition.
+	 * 
 	 * This method will fire only if it can. If it can't, its a no-op.
-	 * If it fires, tokens are added to the outgoing places and removed from the incoming places.
+	 * If it fires, tokens are added to the outgoing places and removed 
+	 * from the incoming places according to the incoming edge weight.
 	 * @throws Exception
 	 */
+	@Deprecated
 	public boolean fire() throws Exception
 	{
 		logger.debug("fire() invoked.");
@@ -232,8 +236,13 @@ public class Transition implements PetriNetElementIntf
 	}
 	
 	/**
+	 * Fires the transition.
 	 * This method will fire only if it can. If it can't, its a no-op.
-	 * If it fires, tokens are added to the outgoing places and removed from the incoming places.
+	 * If it fires, tokens are added to the outgoing places and removed 
+	 * from the incoming places according to the incoming edge weight.
+	 * <br>
+	 * This method differs from fire() because it invokes update(ArrayList, Place)
+	 * @see {@link cu.rst.core.petrinet.PetriNetElementIntf#update(ArrayList, Place)}
 	 * @throws Exception
 	 */
 	public boolean fire2() throws Exception

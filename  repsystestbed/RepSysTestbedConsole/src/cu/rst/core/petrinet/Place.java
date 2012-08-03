@@ -50,12 +50,22 @@ public class Place implements PetriNetElementIntf
 		return (m_tokens!=null)? m_tokens.size() : 0;
 	}
 	
+	/**
+	 * Puts a token on the place. Each place maintains a collection of tokens. The given token is added to this collection
+	 * @param t token to be put
+	 */
 	public void putToken(Token t)
 	{
 		if(m_tokens == null) m_tokens = new ArrayList<Token>();
 		m_tokens.add(t);
 	}
 	
+	/**
+	 * Puts a token on the place. Each place maintains a collection of tokens. The given token is added to this collection
+	 * @param t token to be put
+	 * @param update If true, the underlying object (graph, boolean variable, etc) is updated. 
+	 * @throws Exception
+	 */
 	public void putToken(Token t, boolean update) throws Exception
 	{
 		if(m_tokens == null) m_tokens = new ArrayList<Token>();
@@ -81,7 +91,7 @@ public class Place implements PetriNetElementIntf
 	}
 	
 	/**
-	 * Clears all tokens of all types
+	 * Clears all tokens 
 	 */
 	public void deleteAllTokens()
 	{
@@ -92,8 +102,8 @@ public class Place implements PetriNetElementIntf
 	}
 	
 	/**
-	 * Delete specified number of tokens.
-	 * @param n
+	 * Delete specified number of tokens. Note that this method will delete the first n number of tokens in the place.
+	 * @param n number of tokens to be deleted.
 	 */
 	public void deleteTokens(int n) throws Exception
 	{

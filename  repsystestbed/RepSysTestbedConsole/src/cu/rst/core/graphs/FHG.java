@@ -8,7 +8,11 @@ import org.apache.log4j.Logger;
 import cu.rst.core.petrinet.Token;
 import cu.rst.util.Util;
 
-
+/**
+ * This graph models the Feedback History Graph.
+ * @author partheinstein
+ *
+ */
 public class FHG extends Graph<Agent, FeedbackHistoryGraphEdge>
 {
 	static Logger logger = Logger.getLogger(FHG.class.getName());

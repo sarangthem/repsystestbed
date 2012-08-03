@@ -1,14 +1,10 @@
-/**
- * 
- */
 package cu.rst.core.alg;
-
-import org.jgrapht.graph.SimpleDirectedGraph;
 
 import cu.rst.core.graphs.Graph;
 
 /**
  * @author partheinstein
+ * This is an interface to enfore pre-conditions and post-conditions of algorithms.
  *
  */
 public interface ConditionsCheckerIntf

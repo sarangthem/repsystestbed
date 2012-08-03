@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cu.rst.core.graphs;
 
 import java.util.ArrayList;
@@ -9,6 +6,7 @@ import java.util.ArrayList;
  * @author partheinstein
  *
  */
+@Deprecated
 public class Group
 {
 	public class TargetGpStrAssignment
