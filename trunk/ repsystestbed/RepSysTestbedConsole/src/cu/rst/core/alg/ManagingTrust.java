@@ -16,6 +16,8 @@ import cu.rst.core.graphs.Graph;
 import cu.rst.core.graphs.Graph.Type;
 import cu.rst.core.graphs.RG;
 import cu.rst.core.graphs.ReputationEdge;
+import cu.rst.core.graphs.TG;
+import cu.rst.core.graphs.TrustEdge;
 import cu.rst.core.petrinet.Place;
 import cu.rst.core.petrinet.Token;
 
@@ -309,7 +311,7 @@ public class ManagingTrust extends Algorithm
 	@Override
 	public boolean assertGraph2OutputType(Graph g) throws Exception
 	{
-		if(!(g instanceof RG)) return false;
+		if(!(g instanceof TG)) return false;
 		return true;
 	}
 
@@ -337,7 +339,7 @@ public class ManagingTrust extends Algorithm
 	@Override
 	public ArrayList update(ArrayList<Token> tokens) throws Exception 
 	{
-		ArrayList<ReputationEdge> changes = new ArrayList<ReputationEdge>();
+		ArrayList<TrustEdge> changes = new ArrayList<TrustEdge>();
 		if(tokens!=null && tokens.size()>0)
 		{
 			for(Token t : tokens)
@@ -350,7 +352,12 @@ public class ManagingTrust extends Algorithm
 						if(!src.equals(sink))
 						{
 							double rep = calculateTrustScore(src, sink, fhg);
-							changes.add(new ReputationEdge(src, sink, rep));
+							logger.debug("Trust score: " + src + ", " + sink + ": " + rep);
+							if(rep > 0)
+							{
+								logger.debug("Adding trust edge between " + src + " and " + sink);
+								changes.add(new TrustEdge(src, sink));
+							}
 						}
 					}
 				}

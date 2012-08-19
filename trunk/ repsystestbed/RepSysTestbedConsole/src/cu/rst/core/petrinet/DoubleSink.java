@@ -1,31 +1,25 @@
-/**
- * 
- */
 package cu.rst.core.petrinet;
 
 import java.util.ArrayList;
 
 import cu.rst.util.Util;
 
-/**
- * @author partheinstein
- *
- */
-public class BooleanSink extends Place
+public class DoubleSink extends Place
 {
-	public boolean m_val;
+	public double m_val;
 	
-	public BooleanSink()
+	
+	public DoubleSink()
 	{
-		m_val = false;
+		m_val = Double.MIN_VALUE;
 	}
 	
-	public boolean getVal()
+	public double getVal()
 	{
 		return m_val;
 	}
 	
-	public void setVal(boolean val)
+	public void setVal(double val)
 	{
 		m_val = val;
 	}
@@ -35,12 +29,12 @@ public class BooleanSink extends Place
 	{
 		Util.assertNotNull(tokens);
 		if(tokens.size()==0) throw new Exception("Not enough tokens to update.");
-		ArrayList<Boolean> toReturn = new ArrayList<Boolean>();
+		ArrayList<Double> toReturn = new ArrayList<Double>();
 		for(Token t : tokens)
 		{
 			Util.assertNotNull(t);
 			Util.assertNotNull(t.m_place);
-			Boolean val = t.m_place instanceof Boolean ? (Boolean) t.m_place : false;
+			Double val = t.m_place instanceof Double ? (Double) t.m_place : Double.MIN_VALUE;
 			setVal(val);
 			toReturn.add(val);
 		}
@@ -48,11 +42,10 @@ public class BooleanSink extends Place
 		return toReturn;
 	}
 	
-
+	
 	@Override
 	public ArrayList update(ArrayList<Token> tokens, Place p) throws Exception
 	{
 		return update(tokens);
 	}
-
 }

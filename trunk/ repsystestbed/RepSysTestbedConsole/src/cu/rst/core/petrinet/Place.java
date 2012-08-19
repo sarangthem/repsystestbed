@@ -20,6 +20,11 @@ public class Place implements PetriNetElementIntf
 	
 	private PetriNetElementIntf m_container;
 	
+	public Place()
+	{
+		m_id = PetriNet.globalCounter++;
+	}
+	
 	public Place(PetriNetElementIntf graph)
 	{
 		m_container = graph;
@@ -140,7 +145,8 @@ public class Place implements PetriNetElementIntf
 	@Override
 	public String toString()
 	{
-		return "Place: " + m_container.getClass().getCanonicalName() + ", Number of tokens: " + numTokens();
+		String name = (m_container != null)? m_container.getClass().getCanonicalName() : null;
+		return "Place: " + name + ", Number of tokens: " + numTokens();
 	}
 	
 	@Override
@@ -152,9 +158,15 @@ public class Place implements PetriNetElementIntf
 	@Override
 	public void setWorkflow(PetriNet net) throws Exception 
 	{
+		Util.assertNotNull(net);
 		this.workflow = net;
-		this.m_container.setWorkflow(net);
+		if(this.m_container != null) this.m_container.setWorkflow(net);
 		
+	}
+	
+	public PetriNet getWorkflow()
+	{
+		return this.workflow;
 	}
 	
 	public PetriNetElementIntf getContainedElement()

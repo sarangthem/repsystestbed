@@ -24,7 +24,7 @@ import cu.rst.core.petrinet.PetriNetEdgeFactory;
 import cu.rst.core.petrinet.Place;
 import cu.rst.core.petrinet.Token;
 import cu.rst.core.petrinet.Transition;
-import cu.rst.util.DefaultArffFeedbackGenerator;
+import cu.rst.util.FeedbackGenerator;
 import cu.rst.util.DotWriter;
 
 public class PetriNetTest2 
@@ -92,7 +92,7 @@ public class PetriNetTest2
 		DotWriter.write2(workflow, "output\\" + temp + "\\etpt\\wf", graphVizLocation);
 		
 		//parse the feedbacks from the arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName + ".arff");
 		
 		//put the first token and fire some transitions 
@@ -175,7 +175,7 @@ public class PetriNetTest2
 
 		
 		//parse the feedbacks from the arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks1 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName1 + ".arff");
 		ArrayList<Feedback> feedbacks2 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName2 + ".arff");
 		
@@ -279,7 +279,7 @@ public class PetriNetTest2
 
 		
 		//parse the feedbacks from the arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks1 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName1 + ".arff");
 		ArrayList<Feedback> feedbacks2 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName2 + ".arff");
 		
@@ -365,7 +365,7 @@ public class PetriNetTest2
 
 		
 		//parse the feedbacks from the arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks1 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName1 + ".arff");		
 		
 		for(int i=0; i<feedbacks1.size()-1;i++)
@@ -482,7 +482,7 @@ public class PetriNetTest2
 		
 		
 		//parse the feedbacks from the arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks1 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName1 + ".arff");		
 		
 		for(int i=0; i<feedbacks1.size()-2;i++)
@@ -575,7 +575,7 @@ public class PetriNetTest2
 		
 		
 		//parse the feedbacks from the arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks1 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName1 + ".arff");		
 		
 		for(int i=0; i<feedbacks1.size()-1;i++)
@@ -670,7 +670,7 @@ public class PetriNetTest2
 		
 		
 		//parse the feedbacks from the arff file
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks1 = (ArrayList<Feedback>) feedbackGen.generateHardcoded(arffFileName1 + ".arff");		
 		
 		for(int i=0; i<feedbacks1.size()-2;i++)

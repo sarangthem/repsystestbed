@@ -36,23 +36,44 @@ public class Transition implements PetriNetElementIntf
 	private PetriNet m_net; 
 	private Algorithm m_alg;
 	
+	public Transition()
+	{
+		m_id = PetriNet.globalCounter++;
+	}
+	
 	public Transition(Algorithm alg)
 	{
-		m_alg = alg;
+		
 		m_id = PetriNet.globalCounter++;
+		try
+		{
+			setAlgorithm(alg);
+		}
+		catch(Exception e)
+		{
+			logger.error(e);
+		}
+	}
+	
+	public void setAlgorithm(Algorithm alg) throws Exception
+	{
+		Util.assertNotNull(alg);
+		m_alg = alg;
 		m_alg.setTransition(this);
 	}
 	
 	public Algorithm getAlg()
 	{
+		Util.assertNotNull(m_alg);
 		return m_alg;
 	}
 	
 	@Override
-	public void setWorkflow(PetriNet net)
+	public void setWorkflow(PetriNet net) throws Exception
 	{
+		Util.assertNotNull(net);
 		m_net = net;
-		m_alg.setWorkflow(net);
+		if(m_alg != null) m_alg.setWorkflow(net);
 	}
 	
 	public PetriNet getWorkflow()
@@ -377,7 +398,8 @@ public class Transition implements PetriNetElementIntf
 	@Override
 	public String toString()
 	{
-		return "Transition: " + m_alg.getClass().getCanonicalName();
+		String name = (m_alg!=null)? m_alg.getClass().getCanonicalName() : null;
+		return "Transition: " + name;
 	}
 	
 	@Override
