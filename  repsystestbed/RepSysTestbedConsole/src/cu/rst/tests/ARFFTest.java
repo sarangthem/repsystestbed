@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.log4j.BasicConfigurator;
 
 import cu.rst.core.graphs.Feedback;
-import cu.rst.util.DefaultArffFeedbackGenerator;
+import cu.rst.util.FeedbackGenerator;
 
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -200,7 +200,7 @@ public class ARFFTest {
 	
 	public static ArrayList<Feedback> readFeedbacksArff() throws Exception
 	{
-		DefaultArffFeedbackGenerator feedbackGen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackGen = new FeedbackGenerator();
 		ArrayList<Feedback> feedbacks = (ArrayList<Feedback>) feedbackGen.generateHardcoded("feedbacks.arff");
 		System.out.println(feedbacks.size());
 		return feedbacks;
@@ -216,7 +216,7 @@ public class ARFFTest {
 		//readFeedbacksArff();
 		//DefaultArffFeedbackGenerator.writeToArff(readFeedbacksArff(), "output.arff");
 		
-		DefaultArffFeedbackGenerator feedbackgen = new DefaultArffFeedbackGenerator();
+		FeedbackGenerator feedbackgen = new FeedbackGenerator();
 		
 		feedbackgen.writeToArff((ArrayList<Feedback>) feedbackgen.generate("feedbackgen.properties"),
 				"autofeedbacks.arff");

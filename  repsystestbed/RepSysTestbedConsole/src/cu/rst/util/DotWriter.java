@@ -87,8 +87,9 @@ public class DotWriter
 			
 			for(Object o : tg.edgeSet())
 			{
-				TrustEdge e = (TrustEdge)o;
-				fw.write(((Agent)e.src).id + " -> " + ((Agent)e.sink).id);
+				TrustEdge e = (TrustEdge) o;
+				fw.write(((Agent)e.src).id + " -> ");
+				fw.write(((Agent)e.sink).id +  " [label=\"" + "\"];");
 			}
 			fw.write("}");
 			fw.close();

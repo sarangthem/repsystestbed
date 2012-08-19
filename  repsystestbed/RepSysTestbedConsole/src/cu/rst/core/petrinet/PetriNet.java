@@ -28,6 +28,24 @@ public class PetriNet extends SimpleDirectedGraph<PetriNetElementIntf, PetriNetE
 		super(pnef);	
 	}
 	
+	public PetriNet()
+	{
+		super(new PetriNetEdgeFactory());
+		logger.debug("PetriNet created");
+	}
+	
+	@Override
+	public boolean addVertex(PetriNetElementIntf node)
+	{
+		logger.debug("addNode invoked.");
+		if(node == null)
+		{
+			logger.error("Node to be added is null.");
+			return false;
+		}
+		return super.addVertex(node);
+	}
+	
 	/**
 	 * Connects two Petri Net elements.
 	 * @param src Source element of the edge

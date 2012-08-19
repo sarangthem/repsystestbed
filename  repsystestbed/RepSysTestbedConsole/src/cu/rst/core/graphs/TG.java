@@ -23,6 +23,19 @@ public class TG extends Graph<Agent, TrustEdge>
 	{
 		super(trustEdgeFactory);
 	}
+	
+	public TG()
+	{
+		super(new TrustEdgeFactory());
+	}
+	
+	public void addTrustEdges(ArrayList<TrustEdge> trustEdges)
+	{
+		for(TrustEdge te : trustEdges)
+		{
+			addEdge(te.src, te.sink);
+		}
+	}
 
 	@Override
 	public String toString()
@@ -56,11 +69,12 @@ public class TG extends Graph<Agent, TrustEdge>
 		return null;
 	}
 
-	public void addEdge(Agent src, Agent sink)
+	@Override
+	public Object addEdge(Object src, Object sink)
 	{
 		if(!this.containsVertex(src)) this.addVertex(src);
 		if(!this.containsVertex(sink)) this.addVertex(sink);
-		addEdge((Object)src, (Object)sink);
+		return super.addEdge((Object)src, (Object)sink);
 	}
 
 	@Override
@@ -70,9 +84,12 @@ public class TG extends Graph<Agent, TrustEdge>
 		
 		for(Token t : tokens)
 		{
-			for(TrustEdge e : (ArrayList<TrustEdge>) t.m_changes)
+			if(t.m_changes!=null)
 			{
-				addEdge(e.src, e.sink);
+				for(TrustEdge e : (ArrayList<TrustEdge>) t.m_changes)
+				{
+					addEdge(e.src, e.sink);
+				}
 			}
 		}
 		

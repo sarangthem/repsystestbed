@@ -23,6 +23,18 @@ public class RG extends Graph<Agent, ReputationEdge>
 		super(reputationEdgeFactory);
 	}
 	
+	public RG()
+	{
+		super(new ReputationEdgeFactory());
+	}
+	
+	public void addEdges(ArrayList<ReputationEdge> repEdges)
+	{
+		for(ReputationEdge re : repEdges)
+		{
+			addEdge((Agent)re.src, (Agent)re.sink, re.getReputation());
+		}
+	}
 	
 	/**
 	 * Adds the edge if it doesn't exist already. If it exists, the edge weight is updated.
@@ -121,19 +133,22 @@ public class RG extends Graph<Agent, ReputationEdge>
 		ArrayList<ReputationEdge> changes = new ArrayList<ReputationEdge>();
 		for(Token t : tokens)
 		{
-			for(Object o : t.m_changes)
+			if(t.m_changes!=null)
 			{
-				if(o instanceof ReputationEdge)
+				for(Object o : t.m_changes)
 				{
-					ReputationEdge e = (ReputationEdge) o;
-					changes.add(e);
-					addEdge((Agent)e.src, (Agent)e.sink, e.getReputation());
+					if(o instanceof ReputationEdge)
+					{
+						ReputationEdge e = (ReputationEdge) o;
+						changes.add(e);
+						addEdge((Agent)e.src, (Agent)e.sink, e.getReputation());
+					}
+					else
+					{
+						logger.debug("Token did not have a reputation edge");
+					}
+					
 				}
-				else
-				{
-					logger.debug("Token did not have a reputation edge");
-				}
-				
 			}
 		}
 		return changes;

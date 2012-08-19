@@ -15,15 +15,29 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.jgrapht.graph.SimpleDirectedGraph;
 
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+
+import cu.rst.core.exceptions.GenericTestbedException;
 import cu.rst.core.graphs.Agent;
+import cu.rst.core.graphs.Feedback;
+import cu.rst.core.graphs.ReputationEdge;
 import cu.rst.core.graphs.ReputationEdgeFactory;
 import cu.rst.core.graphs.RG;
+import cu.rst.core.graphs.TG;
 import cu.rst.core.graphs.TestbedEdge;
+import cu.rst.core.graphs.TrustEdge;
+import cu.rst.core.graphs.TrustEdgeFactory;
+import cu.rst.core.alg.Algorithm;
 
 /**
  * @author partheinstein
@@ -32,6 +46,7 @@ import cu.rst.core.graphs.TestbedEdge;
 public class Util
 {
 	public static final String WORKFLOW_DEFINITION = "workflow";
+	private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Util.class.getName());
 
 	public static void assertNotNull(Object o) throws NullPointerException
 	{
@@ -436,6 +451,237 @@ public class Util
         is.close();
         return bytes;
     }
+    
+    public static Algorithm createAlgorithmInstance(String classPath) throws Exception
+	{
+		try
+		{
+			Algorithm alg = (Algorithm) Util.newClass(classPath);
+			return alg;
+			
+		}
+		catch(Exception e)
+		{
+			throw new Exception("Could not load algorithm " + classPath, e);
+		}
+	}
+    
+    public static List<Feedback> generateHardcoded(String arffFileName) throws Exception
+	{
+		ArrayList<Feedback> feedbacks = null;
+		
+		/**
+		 * 
+		 * @attribute assessorID string
+		 * @attribute assesseeID string
+		 * @attribute feedbackValue string
+		 */
+		
+		DataSource source;
+		try
+		{
+			source = new DataSource(arffFileName);
+			Instances instances = source.getDataSet();
+			feedbacks = new ArrayList<Feedback>();
+			logger.debug("Number of instances in arff file is " + instances.numInstances());
+			
+			Enumeration enu = instances.enumerateInstances();
+			//get all the feedback lines
+			
+			while(enu.hasMoreElements())
+			{
+				Instance temp = (Instance)enu.nextElement();
+				logger.info("Parsing " + temp);
+				String[] feedbackInstance = new String[3];
+				//go through each feedback line
+				
+				if(temp.numValues()!=3) throw new Exception("Feedback line does not have 3 elements. This is illegal.");
+				
+				for(int i=0;i<temp.numValues();i++)
+				{
+					//number of values == 3
+					feedbackInstance[i] = temp.stringValue(i);					
+				}
+				Agent assessor = new Agent(new Integer(feedbackInstance[0]));
+				Agent assessee = new Agent(new Integer(feedbackInstance[1]));
+				Double value = new Double(feedbackInstance[2]);
+				
+				Feedback f = new Feedback(assessor, assessee, value);
+				feedbacks.add(f);
+				logger.info("Added " + f );
+				
+			}
+
+		} catch (Exception e)
+		{
+			logger.info("Error parsing arff file '" + arffFileName +"'.");
+			logger.info(e.getStackTrace());
+			throw e;
+		}
+		
+		return feedbacks;
+				
+	}
+    
+    public static RG createGraph(String arffFileName) throws Exception
+	{
+		RG repGraph = new RG(new ReputationEdgeFactory());
+		
+		Util.assertNotNull(arffFileName);
+		Util.assertFileExists(arffFileName);
+		
+		DataSource source;
+		try
+		{
+			source = new DataSource(arffFileName);
+			Instances instances = source.getDataSet();
+			logger.debug("Number of instances in arff file is " + instances.numInstances());
+			
+			Enumeration enu = instances.enumerateInstances();
+			//get all the feedback lines
+			
+			while(enu.hasMoreElements())
+			{
+				Instance temp = (Instance)enu.nextElement();
+				logger.info("Parsing " + temp);
+				String[] repInstance = new String[3];
+				//go through each feedback line
+				
+				if(temp.numValues()!=3) throw new GenericTestbedException("Reputation line does not have 3 elements. This is illegal.");
+				
+				for(int i=0;i<temp.numValues();i++)
+				{
+					//number of values == 3
+					repInstance[i] = String.valueOf((int)temp.value(i));				
+				}
+				Agent src = new Agent(new Integer(repInstance[0]));
+				Agent sink = new Agent(new Integer(repInstance[1]));
+				Double reputation = new Double(repInstance[2]);
+				
+				if(!repGraph.containsVertex(src))
+				{
+					repGraph.addVertex(src);
+				}
+				
+				if(!repGraph.containsVertex(sink))
+				{
+					repGraph.addVertex(sink);
+				}
+				
+				repGraph.addEdge(src, sink, (double)reputation);
+				ReputationEdge repEdge = (ReputationEdge) repGraph.getEdge(src, sink);
+				repEdge.setReputation(reputation);
+				System.out.println(repGraph);
+			}
+			
+			return repGraph;
+
+		} catch (Exception e)
+		{
+			logger.error("Error parsing arff file '" + arffFileName +"'.");
+			logger.error(e);
+			throw new GenericTestbedException("Error parsing arff file.", e);
+		}
+			
+	}
+    
+    public static ArrayList<ReputationEdge> generateReputationEdges(String arffFileName) throws Exception
+	{
+		RG repGraph = new RG(new ReputationEdgeFactory());
+		
+		Util.assertNotNull(arffFileName);
+		Util.assertFileExists(arffFileName);
+		
+		DataSource source;
+		ArrayList<ReputationEdge> repEdges = new ArrayList<ReputationEdge>();
+		try
+		{
+			source = new DataSource(arffFileName);
+			Instances instances = source.getDataSet();
+			logger.debug("Number of instances in arff file is " + instances.numInstances());
+			
+			Enumeration enu = instances.enumerateInstances();
+			//get all the feedback lines
+			
+			while(enu.hasMoreElements())
+			{
+				Instance temp = (Instance)enu.nextElement();
+				logger.info("Parsing " + temp);
+				String[] repInstance = new String[3];
+				//go through each feedback line
+				
+				if(temp.numValues()!=3) throw new GenericTestbedException("Reputation line does not have 3 elements. This is illegal.");
+				
+				for(int i=0;i<temp.numValues();i++)
+				{
+					//number of values == 3
+					repInstance[i] = String.valueOf((int)temp.value(i));				
+				}
+				Agent src = new Agent(new Integer(repInstance[0]));
+				Agent sink = new Agent(new Integer(repInstance[1]));
+				Double reputation = new Double(repInstance[2]);
+				repEdges.add(new ReputationEdge(src, sink, reputation));
+				
+			}
+			
+			return repEdges;
+
+		} catch (Exception e)
+		{
+			logger.error("Error parsing arff file '" + arffFileName +"'.");
+			logger.error(e);
+			throw new GenericTestbedException("Error parsing arff file.", e);
+		}
+			
+	}
+    
+    public static ArrayList<TrustEdge> generateTrustEdges(String arffFileName) throws Exception
+	{
+		TG trustGraph = new TG(new TrustEdgeFactory());
+		
+		Util.assertNotNull(arffFileName);
+		Util.assertFileExists(arffFileName);
+		ArrayList<TrustEdge> tEdges = new ArrayList<TrustEdge>();
+		DataSource source;
+		try
+		{
+			source = new DataSource(arffFileName);
+			Instances instances = source.getDataSet();
+			logger.debug("Number of instances in arff file is " + instances.numInstances());
+			
+			Enumeration enu = instances.enumerateInstances();
+			
+			
+			while(enu.hasMoreElements())
+			{
+				Instance temp = (Instance)enu.nextElement();
+				logger.info("Parsing " + temp);
+				String[] feedbackInstance = new String[3];
+				//go through each feedback line
+				
+				if(temp.numValues()!=2) throw new GenericTestbedException("Trust line does not have 2 elements. This is illegal.");
+				
+				for(int i=0;i<temp.numValues();i++)
+				{
+					//number of values == 2
+					feedbackInstance[i] = temp.stringValue(i);					
+				}
+				Agent src = new Agent(new Integer(feedbackInstance[0]));
+				Agent sink = new Agent(new Integer(feedbackInstance[1]));
+				
+				tEdges.add(new TrustEdge(src, sink));
+			}
+			
+		} 
+		catch (Exception e)
+		{
+			logger.info("Error parsing arff file '" + arffFileName +"'.");
+			logger.info(e.getStackTrace());
+			throw new GenericTestbedException("Error parsing arff file.", e);
+		}
+		return tEdges;
+		
+	}
 	
 	public static void main(String[] args) throws Exception
 	{
