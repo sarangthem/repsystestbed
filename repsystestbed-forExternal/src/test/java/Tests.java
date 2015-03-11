@@ -4,8 +4,10 @@ import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 import cu.rst.alg.EigenTrustv1;
+import cu.rst.graph.Agent;
 import cu.rst.graph.FHG;
 import cu.rst.graph.RG;
+import cu.rst.graph.ReputationEdge;
 
 public class Tests {
 
@@ -167,6 +169,82 @@ public class Tests {
 		RG rg2 = (RG) (new EigenTrustv1()).execute(fhg);
 
 		assertTrue(spearman(rg1, rg2) == 1);
+	}
+
+	@Test
+	public void peerTrustSanity() throws Exception {
+
+		String input = "src/test/resources/input/peertrust_sanity.arff";
+
+		FHG fhg = generateFHG(input);
+		RG rg = (RG) peerTrust(fhg);
+
+		Agent alice = new Agent(0);
+		Agent bob = new Agent(1);
+		Agent charlie = new Agent(2);
+		Agent dan = new Agent(3);
+
+		double bobAliceTrust = ((ReputationEdge) rg.getEdge(bob, alice))
+				.getReputation();
+		double charlieAliceTrust = ((ReputationEdge) rg.getEdge(charlie, alice))
+				.getReputation();
+		double danAliceTrust = ((ReputationEdge) rg.getEdge(dan, alice))
+				.getReputation();
+
+		double aliceBobTrust = ((ReputationEdge) rg.getEdge(alice, bob))
+				.getReputation();
+		double charlieBobTrust = ((ReputationEdge) rg.getEdge(charlie, bob))
+				.getReputation();
+		double danBobTrust = ((ReputationEdge) rg.getEdge(charlie, bob))
+				.getReputation();
+
+		double aliceCharlieTrust = ((ReputationEdge) rg.getEdge(alice, charlie))
+				.getReputation();
+		double bobCharlieTrust = ((ReputationEdge) rg.getEdge(bob, charlie))
+				.getReputation();
+		double danCharlieTrust = ((ReputationEdge) rg.getEdge(dan, charlie))
+				.getReputation();
+
+		double aliceDanTrust = ((ReputationEdge) rg.getEdge(alice, dan))
+				.getReputation();
+		double bobDanTrust = ((ReputationEdge) rg.getEdge(bob, dan))
+				.getReputation();
+		double charlieDanTrust = ((ReputationEdge) rg.getEdge(charlie, dan))
+				.getReputation();
+
+		/*
+		 * T(Alice) is calculated as 0.9 * T(Bob)/(T(Bob)+T(Bob)) + 0.8 *
+		 * T(Bob)/(T(Bob)+T(Bob)) and because T(Bob) is initialized to 0.25,
+		 * T(Alice) = 0.85. T(Bob)
+		 * 
+		 * T(Bob) is calculated similarly, but because we have already
+		 * calculated T(Alice), T(Bob) = 0.8 * 0.85/(0.85+0.85) + 0.9 *
+		 * 0.85/(0.85+0.85) = 0.85.
+		 * 
+		 * T(Charlie) is (0.7 + 0.8 + 0.9) * (T(Dan)/(3∗T(Dan)+3∗T(Bob))) + (0.5
+		 * + 0.4 + 0.2) * (T(Dan)/(3∗T(Dan)+3∗T(Bob))), which is 0.475. Because
+		 * no agent has interacted with Dan, T(Dan) = 0.25.
+		 */
+
+		// Alice's global trust score be around0.85
+		assertTrue(Math.abs(bobAliceTrust - 0.85) < 0.01);
+		assertTrue(Math.abs(charlieAliceTrust - 0.85) < 0.01);
+		assertTrue(Math.abs(danAliceTrust - 0.85) < 0.01);
+
+		// Bob's global trust score must be 0.85
+		assertTrue(Math.abs(aliceBobTrust - 0.85) < 0.01);
+		assertTrue(Math.abs(charlieBobTrust - 0.85) < 0.01);
+		assertTrue(Math.abs(danBobTrust - 0.85) < 0.01);
+
+		// Charlie's global trust score must be around 0.465
+		assertTrue(Math.abs(aliceCharlieTrust - 0.465) < 0.01);
+		assertTrue(Math.abs(bobCharlieTrust - 0.465) < 0.01);
+		assertTrue(Math.abs(danCharlieTrust - 0.465) < 0.01);
+
+		// Dan's global trust score must be 0.25
+		assertTrue(aliceDanTrust == 0.25);
+		assertTrue(bobDanTrust == 0.25);
+		assertTrue(charlieDanTrust == 0.25);
 	}
 
 	/*
