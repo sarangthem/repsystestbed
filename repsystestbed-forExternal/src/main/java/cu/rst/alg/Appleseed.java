@@ -22,6 +22,20 @@ import cu.rst.util.Util;
  */
 public class Appleseed implements AlgorithmIntf
 {
+	public static final int DEFAULT_NUM_ITERATIONS = 100;
+	
+	private final int numIterations;
+	
+	public Appleseed()
+	{
+		this.numIterations = DEFAULT_NUM_ITERATIONS;
+	}
+	
+	public Appleseed(int numIterations)
+	{
+		this.numIterations = numIterations;
+	}
+	
 	public double calculateTrustScore(Agent src, Agent sink, RG rg)
 			throws Exception
 	{
@@ -41,10 +55,6 @@ public class Appleseed implements AlgorithmIntf
 		return trustRanks.containsKey(sink) ? (Double) trustRanks.get(sink)
 				: -1;
 
-	}
-
-	public Appleseed()
-	{
 	}
 
 	private Hashtable<Agent, Double> trusts(Agent s, double inEnergy,
@@ -127,7 +137,7 @@ public class Appleseed implements AlgorithmIntf
 				}
 			}
 
-		} while (i < 100);
+		} while (i < numIterations);
 
 		return trust.get(i);
 
