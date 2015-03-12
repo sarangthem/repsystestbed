@@ -156,21 +156,28 @@ public class Util
 			while(enu.hasMoreElements())
 			{
 				Instance temp = (Instance)enu.nextElement();
-				logger.info("Parsing " + temp);
+				System.out.println("Parsing " + temp);
 				String[] repInstance = new String[3];
 				//go through each feedback line
 				
 				if(temp.numValues()!=3) throw new Exception("Reputation line does not have 3 elements. This is illegal.");
 				
-				for(int i=0;i<temp.numValues();i++)
-				{
-					//number of values == 3
-					if(i<2) repInstance[i] = String.valueOf((int)temp.value(i));
-					else if(i==2)  repInstance[i] = String.valueOf((double)temp.value(i));			
-				}
-				Agent src = new Agent(new Integer(repInstance[0]));
-				Agent sink = new Agent(new Integer(repInstance[1]));
-				Double reputation = new Double(repInstance[2]);
+				
+				
+//				for(int i=0;i<temp.numValues();i++)
+//				{
+//					//number of values == 3
+//					if(i<2) repInstance[i] = String.valueOf(temp.value(i));
+//					else if(i==2)  repInstance[i] = String.valueOf(temp.value(i));			
+//				}
+				
+				String srcId = temp.stringValue(0);
+				String sinkId = temp.stringValue(1);
+				String rep = temp.stringValue(2);
+				
+				Agent src = new Agent(Integer.valueOf(srcId));
+				Agent sink = new Agent(Integer.valueOf(sinkId));
+				double reputation = Double.valueOf(rep);
 				
 				if(!repGraph.containsVertex(src))
 				{
@@ -185,7 +192,7 @@ public class Util
 				repGraph.addEdge(src, sink, (double)reputation);
 				ReputationEdge repEdge = (ReputationEdge) repGraph.getEdge(src, sink);
 				repEdge.setReputation(reputation);
-				System.out.println(repGraph);
+//				System.out.println(repGraph);
 			}
 			
 			return repGraph;
