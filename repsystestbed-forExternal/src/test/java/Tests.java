@@ -3,6 +3,7 @@ import static org.testng.Assert.*;
 
 import org.testng.annotations.Test;
 
+import cu.rst.alg.Appleseed;
 import cu.rst.alg.EigenTrustv1;
 import cu.rst.graph.Agent;
 import cu.rst.graph.FHG;
@@ -25,86 +26,9 @@ public class Tests {
 		// the results from our implementation and results from manual
 		// calculation are the same. So it is likely the results provided in the
 		// link above are incorrect for the given input.
-		// Manual calculation steps:
-		// iter1
-		// t1 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.33}
-		// ,{0.33}, {0.33}}
-		// t1 = {{0.25905}, {0.61875}, {0.1089}}
-		// t1 = 0.5 * {{0.25905}, {0.61875}, {0.1089}} + 0.5 * {{0.33} ,{0.33},
-		// {0.33}}
-		// t1 = {{0.294525}, {0.474375}, {0.21945}}
-		//
-		// iter2
-		// t2 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.294525},
-		// {0.474375}, {0.21945}}
-		// t2 = {{0.340519}, {0.486544}, {0.156544}}
-		// t2 = 0.5 * {{0.340519}, {0.486544}, {0.156544}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t2 = {{0.33526}, {0.408272}, {0.243272}}
-		//
-		// iter3
-		// t3 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.33526},
-		// {0.408272}, {0.243272}}
-		// t3 = {{0.299869}, {0.548123}, {0.13473}}
-		// t3 = 0.5 * {{0.299869}, {0.548123}, {0.13473}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t3 = {{0.314935}, {0.439062}, {0.232365}}
-		//
-		// iter4
-		// t4 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.314935},
-		// {0.439062}, {0.232365}}
-		// t4 = {{0.318827}, {0.518254}, {0.14489}}
-		// t4 = 0.5 * {{0.318827}, {0.518254}, {0.14489}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t4 = {{0.324414}, {0.424127}, {0.237445}}
-		//
-		// iter5
-		// t5 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.324414},
-		// {0.424127}, {0.237445}}
-		// t5 = {{0.309604}, {0.532178}, {0.139962}}
-		// t5 = 0.5 * {{0.309604}, {0.532178}, {0.139962}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t5 = {{0.319802}, {0.431089}, {0.234981}}
-		//
-		// iter6
-		// t6 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.319802},
-		// {0.431089}, {0.234981}}
-		// t6 = {{0.313891}, {0.52541}, {0.142259}}
-		// t6 = 0.5 * {{0.313891}, {0.52541}, {0.142259}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t6 = {{0.321946}, {0.427705}, {0.23613}}
-		//
-		// iter7
-		// t7 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.321946},
-		// {0.427705}, {0.23613}}
-		// t7 = {{0.311802}, {0.52856}, {0.141143}}
-		// t7 = 0.5 * {{0.311802}, {0.52856}, {0.141143}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t7 = {{0.320901}, {0.42928}, {0.235572}}
-		//
-		// iter8
-		// t8 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.320901},
-		// {0.42928}, {0.235572}}
-		// t8 = {{0.312771}, {0.527027}, {0.141662}}
-		// t8 = 0.5 * {{0.312771}, {0.527027}, {0.141662}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t8 = {{0.321386}, {0.428514}, {0.235831}}
-		//
-		// iter 9
-		// t9 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.321386},
-		// {0.428514}, {0.235831}}
-		// t9 = {{0.312298}, {0.527738}, {0.14141}}
-		// t9 = 0.5 * {{0.312298}, {0.527738}, {0.14141}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t9 = {{0.321149}, {0.428869}, {0.235705}}
-		//
-		// iter 10
-		// t10 = {{0, 0.66, 0.125}, {1, 0, 0.875}, {0, 0.33, 0}} . {{0.321149},
-		// {0.428869}, {0.235705}}
-		// t10 = {{0.312517}, {0.527391}, {0.141527}}
-		// t10 = 0.5 * {{0.312517}, {0.527391}, {0.141527}} + 0.5 * {{0.33}
-		// ,{0.33}, {0.33}}
-		// t10 = {{0.321259}, {0.428696}, {0.235764}}
+
+		// The expected values were obtained by calculating them by hand. See
+		// src/test/resourcces/eigentrust_manual_calc.txt for the steps.
 
 		double[][] normalizedFeedbacks = { { 0, 1, 0 },
 				{ 0.66666666, 0, 0.33333333 }, { 0.125, 0.875, 0 } };
@@ -161,7 +85,7 @@ public class Tests {
 	}
 
 	@Test
-	public void eigenTrustRefactorSanity() throws Exception {
+	public void eigenTrustRefactorSanityTest() throws Exception {
 		String input = "src/test/resources/input/eigentrust_sanity.arff";
 
 		FHG fhg = generateFHG(input);
@@ -172,7 +96,7 @@ public class Tests {
 	}
 
 	@Test
-	public void peerTrustSanity() throws Exception {
+	public void peerTrustSanityTest() throws Exception {
 
 		String input = "src/test/resources/input/peertrust_sanity.arff";
 
@@ -211,20 +135,8 @@ public class Tests {
 				.getReputation();
 		double charlieDanTrust = ((ReputationEdge) rg.getEdge(charlie, dan))
 				.getReputation();
-
-		/*
-		 * T(Alice) is calculated as 0.9 * T(Bob)/(T(Bob)+T(Bob)) + 0.8 *
-		 * T(Bob)/(T(Bob)+T(Bob)) and because T(Bob) is initialized to 0.25,
-		 * T(Alice) = 0.85. T(Bob)
-		 * 
-		 * T(Bob) is calculated similarly, but because we have already
-		 * calculated T(Alice), T(Bob) = 0.8 * 0.85/(0.85+0.85) + 0.9 *
-		 * 0.85/(0.85+0.85) = 0.85.
-		 * 
-		 * T(Charlie) is (0.7 + 0.8 + 0.9) * (T(Dan)/(3∗T(Dan)+3∗T(Bob))) + (0.5
-		 * + 0.4 + 0.2) * (T(Dan)/(3∗T(Dan)+3∗T(Bob))), which is 0.475. Because
-		 * no agent has interacted with Dan, T(Dan) = 0.25.
-		 */
+		 
+		// 
 
 		// Alice's global trust score be around0.85
 		assertTrue(Math.abs(bobAliceTrust - 0.85) < 0.01);
@@ -245,6 +157,29 @@ public class Tests {
 		assertTrue(aliceDanTrust == 0.25);
 		assertTrue(bobDanTrust == 0.25);
 		assertTrue(charlieDanTrust == 0.25);
+	}
+
+	@Test
+	public void appleseedSanityTest() throws Exception {
+		String input = "src/test/resources/input/appleseed_sanity.arff";
+
+		RG inputRG = generateRG(input);
+		RG outputRG = (RG) (new Appleseed(3)).execute(inputRG);
+
+		Agent agent0 = new Agent(0);
+		Agent agent1 = new Agent(1);
+		Agent agent2 = new Agent(2);
+
+		double rep01 = ((ReputationEdge) outputRG.getEdge(agent0, agent1))
+				.getReputation();
+		double rep02 = ((ReputationEdge) outputRG.getEdge(agent0, agent2))
+				.getReputation();
+
+		// These values were obtained by calculating them by hand. See
+		// src/test/resourcces/appleseed_manual_calc.txt for the steps.
+		assertTrue(rep01 == 0.1275);
+		assertTrue(rep02 == 0.0541875);
+
 	}
 
 	/*
